@@ -137,6 +137,17 @@ ${cleanConvo}`
       });
 
       const emailData = await emailRes.json();
+      // Send to Google Sheets
+      try {
+        await fetch('https://script.google.com/macros/s/AKfycbyntUFyvU2BvqALA6Lq6JKEfjg5R5t05UVmMsK0GIW-gHGYQ6aWiocM-Q61kIB7Hnu3Ow/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lead)
+        });
+      } catch(e) {
+        console.error('Sheets error:', e.message);
+      }
+
       return res.status(200).json({ success: true });
     }
 
