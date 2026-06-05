@@ -51,6 +51,7 @@ Analyze this intake conversation and return a JSON object with exactly this stru
     "name": "client name or Unknown",
     "email": "client email",
     "product": "product description",
+    "proyecto_nuevo": "TRUE or FALSE",
     "market": "target market",
     "volume": "order quantity",
     "budget": "budget or target cost",
@@ -63,7 +64,17 @@ Analyze this intake conversation and return a JSON object with exactly this stru
   },
   "draft_email": {
     "subject": "email subject line",
-    "body": "professional but warm email body in English, addressing the client by name, referencing their specific product, and including this Calendly link to book a call: https://calendly.com/cimminoglobal/30min — keep it under 120 words, no placeholders"
+    "body": "professional but warm email body in English, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body — end the email with 'Best regards, Piero' and nothing after that. The Calendly button will be added separately."
+  },
+  "anteproyecto": {
+    "resumen": "2-3 sentence executive summary of what the client wants to achieve",
+    "viabilidad": "High / Medium / Low",
+    "riesgo": "High / Medium / Low",
+    "tipo_sourcing": "e.g. Direct factory, Verified trader, OEM, Private label",
+    "certificaciones_requeridas": "specific certifications needed based on product and market",
+    "fee_sugerido": "estimated fee range in euros based on project complexity",
+    "preguntas_clave": ["question 1", "question 2", "question 3", "question 4", "question 5"],
+    "proximos_pasos": ["step 1", "step 2", "step 3"]
   }
 }
 
@@ -78,11 +89,13 @@ ${cleanConvo}`
 
       let lead = {};
       let draftEmail = {};
+      let anteproyecto = {};
       try {
         const cleaned = rawText.replace(/```json|```/g, '').trim();
         const parsed = JSON.parse(cleaned);
         lead = parsed.lead || {};
         draftEmail = parsed.draft_email || {};
+        anteproyecto = parsed.anteproyecto || {};
       } catch(e) {
         lead = { email: clientEmail };
         draftEmail = { subject: 'New project inquiry', body: rawText };
@@ -117,6 +130,55 @@ ${cleanConvo}`
     <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#1E6FD9;text-transform:uppercase;margin-bottom:12px;">Draft Email to Client</div>
     <div style="font-size:12px;color:#888;margin-bottom:6px;"><strong style="color:#555;">Subject:</strong> ${draftEmail.subject || ''}</div>
     <div style="font-size:13px;color:#333;line-height:1.7;white-space:pre-wrap;">${draftEmail.body || ''}</div>
+    <div style="margin-top:16px;">
+      <a href="https://calendly.com/cimminoglobal/30min" style="display:inline-block;background:#1E6FD9;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:13px;font-weight:600;letter-spacing:0.02em;">Book a call →</a>
+    </div>
+  </div>
+
+  <!-- ANTEPROYECTO -->
+  <div style="margin-top:28px;border-radius:8px;overflow:hidden;border:1px solid #e0e7f0;">
+    <div style="background:#0D1B2A;padding:14px 20px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:#1E6FD9;text-transform:uppercase;margin-bottom:2px;">Anteproyecto</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);">Guía para la llamada de 30 minutos</div>
+    </div>
+    <div style="padding:20px;background:#f8f9fb;">
+
+      <p style="font-size:13px;color:#333;line-height:1.7;margin:0 0 20px;">${anteproyecto.resumen || ''}</p>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <tr>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:12px;color:#888;width:40%;">Viabilidad</td>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:13px;font-weight:600;color:#111;">${anteproyecto.viabilidad || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;background:#f8f9fb;border:0.5px solid #e0e7f0;font-size:12px;color:#888;">Riesgo comercial</td>
+          <td style="padding:8px 12px;background:#f8f9fb;border:0.5px solid #e0e7f0;font-size:13px;font-weight:600;color:#111;">${anteproyecto.riesgo || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:12px;color:#888;">Tipo de sourcing</td>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:13px;font-weight:600;color:#111;">${anteproyecto.tipo_sourcing || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;background:#f8f9fb;border:0.5px solid #e0e7f0;font-size:12px;color:#888;">Certificaciones requeridas</td>
+          <td style="padding:8px 12px;background:#f8f9fb;border:0.5px solid #e0e7f0;font-size:13px;font-weight:600;color:#111;">${anteproyecto.certificaciones_requeridas || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:12px;color:#888;">Fee sugerido</td>
+          <td style="padding:8px 12px;background:#fff;border:0.5px solid #e0e7f0;font-size:13px;font-weight:600;color:#1E6FD9;">${anteproyecto.fee_sugerido || '-'}</td>
+        </tr>
+      </table>
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Preguntas clave para la llamada</div>
+        ${(anteproyecto.preguntas_clave || []).map((q, i) => `<div style="padding:8px 12px;background:#fff;border-left:3px solid #1E6FD9;margin-bottom:6px;font-size:13px;color:#333;border-radius:0 4px 4px 0;">${i+1}. ${q}</div>`).join('')}
+      </div>
+
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Próximos pasos</div>
+        ${(anteproyecto.proximos_pasos || []).map((s, i) => `<div style="padding:8px 12px;background:#fff;border-left:3px solid #0D1B2A;margin-bottom:6px;font-size:13px;color:#333;border-radius:0 4px 4px 0;">${i+1}. ${s}</div>`).join('')}
+      </div>
+
+    </div>
   </div>
 
   <div style="font-size:11px;color:#bbb;text-align:center;margin-top:24px;">Cimmino Global - hello@cimminoglobal.com</div>
@@ -139,7 +201,7 @@ ${cleanConvo}`
       const emailData = await emailRes.json();
       // Send to Google Sheets
       try {
-        await fetch('https://script.google.com/macros/s/AKfycbyntUFyvU2BvqALA6Lq6JKEfjg5R5t05UVmMsK0GIW-gHGYQ6aWiocM-Q61kIB7Hnu3Ow/exec', {
+        await fetch('https://script.google.com/macros/s/AKfycbzyK1TFnq0gtYOSkm480SxQu_81K7ac3me5w10C-7PZ8nKc2CAXYwby4BC1DaMVwLov8A/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(lead)
