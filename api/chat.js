@@ -50,9 +50,12 @@ module.exports = async function handler(req, res) {
               role: 'user',
               content: `You are an assistant for Cimmino Global, a global sourcing and manufacturing advisory firm.
 
-Analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON):
+First, detect the language of the conversation (English or Spanish).
+
+Then analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON). Generate ALL text fields in the detected conversation language. If Spanish, use Latin American Spanish (no vosotros):
 
 {
+  "language": "english or spanish",
   "lead": {
     "name": "client name or Unknown",
     "email": "client email",
@@ -69,18 +72,18 @@ Analyze this intake conversation and return a JSON object with exactly this stru
     "priority": "High / Medium / Low"
   },
   "draft_email": {
-    "subject": "email subject line",
-    "body": "professional but warm email body in English, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body. End with: Best regards, Piero"
+    "subject": "email subject line in detected language",
+    "body": "professional but warm email body in the detected language, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body. End with: Best regards, Piero (English) or Saludos, Piero (Spanish)"
   },
   "anteproyecto": {
-    "resumen": "2-3 sentence executive summary of what the client wants to achieve",
+    "resumen": "2-3 sentence executive summary in detected language",
     "viabilidad": "High / Medium / Low",
     "riesgo": "High / Medium / Low",
     "tipo_sourcing": "e.g. Direct factory, Verified trader, OEM, Private label",
-    "certificaciones_requeridas": "specific certifications needed based on product and market",
-    "fee_sugerido": "estimated fee range in euros based on project complexity",
-    "preguntas_clave": ["question 1", "question 2", "question 3", "question 4", "question 5"],
-    "proximos_pasos": ["step 1", "step 2", "step 3"]
+    "certificaciones_requeridas": "specific certifications needed",
+    "fee_sugerido": "estimated fee range in euros",
+    "preguntas_clave": ["question 1 in detected language", "question 2", "question 3", "question 4", "question 5"],
+    "proximos_pasos": ["step 1 in detected language", "step 2", "step 3"]
   }
 }
 
