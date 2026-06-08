@@ -29,20 +29,26 @@ module.exports = async function handler(req, res) {
         return content ? `${role}: ${content}` : null;
       }).filter(Boolean).join('\n');
 
-      // Ask Claude to extract lead data and draft client email
-      const analysisRes = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 1500,
-          messages: [{
-            role: 'user',
-            content: `You are an assistant for Cimmino Global, a global sourcing and manufacturing advisory firm.
+      // Ask Claude to extract lead data, draft email and anteproyecto
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
+
+      let analysisData;
+      try {
+        const analysisRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-5',
+            max_tokens: 2500,
+            messages: [{
+              role: 'user',
+              content: `You are an assistant for Cimmino Global, a global sourcing and manufacturing advisory firm.
 
 Analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON):
 
@@ -64,7 +70,7 @@ Analyze this intake conversation and return a JSON object with exactly this stru
   },
   "draft_email": {
     "subject": "email subject line",
-    "body": "professional but warm email body in English, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body — end the email with 'Best regards, Piero' and nothing after that. The Calendly button will be added separately."
+    "body": "professional but warm email body in English, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body. End with: Best regards, Piero"
   },
   "anteproyecto": {
     "resumen": "2-3 sentence executive summary of what the client wants to achieve",
@@ -80,11 +86,14 @@ Analyze this intake conversation and return a JSON object with exactly this stru
 
 Conversation:
 ${cleanConvo}`
-          }]
-        })
-      });
+            }]
+          })
+        });
+        analysisData = await analysisRes.json();
+      } finally {
+        clearTimeout(timeout);
+      }
 
-      const analysisData = await analysisRes.json();
       const rawText = (analysisData.content || []).map(b => b.text || '').join('');
 
       let lead = {};
@@ -123,7 +132,7 @@ ${cleanConvo}`
     <tr><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#888;">Pain point</td><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#111;font-weight:500;">${lead.pain_point || '-'}</td></tr>
     <tr><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#888;">Specs available</td><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#111;font-weight:500;">${lead.specs_available || '-'}</td></tr>
     <tr><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#888;">Priority</td><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;"><span style="background:${priorityColor};color:#fff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600;">${lead.priority || '-'}</span></td></tr>
-    <tr><td style="padding:8px 0;font-size:13px;color:#888;">Contact</td><td style="padding:8px 0;font-size:13px;color:#1E6FD9;font-weight:600;">${lead.name || ''} — ${lead.email || clientEmail}</td></tr>
+    <tr><td style="padding:8px 0;font-size:13px;color:#888;">Contact</td><td style="padding:8px 0;font-size:13px;color:#1E6FD9;font-weight:600;">${lead.name || ''} - ${lead.email || clientEmail}</td></tr>
   </table>
 
   <div style="background:#f8f9fb;border-radius:8px;padding:20px;margin-bottom:12px;border-left:3px solid #1E6FD9;">
@@ -131,7 +140,7 @@ ${cleanConvo}`
     <div style="font-size:12px;color:#888;margin-bottom:6px;"><strong style="color:#555;">Subject:</strong> ${draftEmail.subject || ''}</div>
     <div style="font-size:13px;color:#333;line-height:1.7;white-space:pre-wrap;">${draftEmail.body || ''}</div>
     <div style="margin-top:16px;">
-      <a href="https://calendly.com/cimminoglobal/30min" style="display:inline-block;background:#1E6FD9;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:13px;font-weight:600;letter-spacing:0.02em;">Book a call →</a>
+      <a href="https://calendly.com/cimminoglobal/30min" style="display:inline-block;background:#1E6FD9;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:13px;font-weight:600;letter-spacing:0.02em;">Book a call</a>
     </div>
   </div>
 
@@ -139,7 +148,7 @@ ${cleanConvo}`
   <div style="margin-top:28px;border-radius:8px;overflow:hidden;border:1px solid #e0e7f0;">
     <div style="background:#0D1B2A;padding:14px 20px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:#1E6FD9;text-transform:uppercase;margin-bottom:2px;">Anteproyecto</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.7);">Guía para la llamada de 30 minutos</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);">Guia para la llamada de 30 minutos</div>
     </div>
     <div style="padding:20px;background:#f8f9fb;">
 
@@ -174,7 +183,7 @@ ${cleanConvo}`
       </div>
 
       <div>
-        <div style="font-size:11px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Próximos pasos</div>
+        <div style="font-size:11px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Proximos pasos</div>
         ${(anteproyecto.proximos_pasos || []).map((s, i) => `<div style="padding:8px 12px;background:#fff;border-left:3px solid #0D1B2A;margin-bottom:6px;font-size:13px;color:#333;border-radius:0 4px 4px 0;">${i+1}. ${s}</div>`).join('')}
       </div>
 
@@ -193,18 +202,20 @@ ${cleanConvo}`
         body: JSON.stringify({
           from: 'Cimmino Global <hello@cimminoglobal.com>',
           to: ['cimminoglobal@gmail.com'],
-          subject: `New lead: ${lead.product || 'project'} - ${lead.priority || ''} priority`,
+          subject: `New lead: ${lead.name || 'Unknown'} - ${lead.product || 'project'} - ${lead.priority || ''} priority`,
           html: emailHtml
         })
       });
 
-      const emailData = await emailRes.json();
       // Send to Google Sheets
       try {
         await fetch('https://script.google.com/macros/s/AKfycbzyK1TFnq0gtYOSkm480SxQu_81K7ac3me5w10C-7PZ8nKc2CAXYwby4BC1DaMVwLov8A/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(lead)
+          body: JSON.stringify({
+            ...lead,
+            notas_clave: anteproyecto.resumen || ''
+          })
         });
       } catch(e) {
         console.error('Sheets error:', e.message);
