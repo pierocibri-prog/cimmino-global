@@ -108,6 +108,7 @@
     text-decoration: none;
   }
   .nav-logo span { color: var(--blue-light); }
+  .nav-left { display: flex; align-items: center; gap: 1rem; }
   .nav-links { display: flex; gap: 2.5rem; align-items: center; }
   .nav-links a {
     font-size: 13px; font-weight: 400;
@@ -480,13 +481,15 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">CIMMINO<span>.</span>GLOBAL</a>
+  <div class="nav-left">
+    <a href="#" class="nav-logo">CIMMINO<span>.</span>GLOBAL</a>
+    <a href="/" class="nav-lang">EN</a>
+  </div>
   <div class="nav-links">
-    <a href="#problem">La Realidad</a>
+    <a href="#problem">El Costo Real</a>
     <a href="#process">Cómo Funciona</a>
     <a href="#story">Nuestra Historia</a>
     <a href="#pricing">Comenzar</a>
-    <a href="/" class="nav-lang">EN</a>
     <a href="#" class="nav-cta" onclick="return openTidio();">Iniciar mi proyecto</a>
   </div>
   <button class="nav-hamburger" onclick="document.getElementById('nav-mobile').classList.toggle('open')" aria-label="Menu">
@@ -496,7 +499,7 @@
 
 <!-- MOBILE NAV -->
 <div class="nav-mobile" id="nav-mobile">
-  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">La Realidad</a>
+  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">El Costo Real</a>
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">Cómo Funciona</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Nuestra Historia</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile').classList.remove('open')">Comenzar</a>
@@ -520,45 +523,48 @@
 <!-- PROBLEM -->
 <div id="problem" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
   <section>
-    <div class="section-eyebrow">¿Te suena familiar?</div>
-    <h2>Lo que nadie pone en el folleto</h2>
-    <p class="section-sub">Tienes una gran idea de producto. Encuentras proveedores en internet. Y entonces la realidad te golpea, porque hacer negocios con China no se parece en nada a cómo luce desde afuera.</p>
+    <div class="section-eyebrow">El Costo Real</div>
+    <h2>Los errores que realmente cuestan no son los que crees.</h2>
+    <p class="section-sub">La mayoría asume que el error más caro es pagar de más al proveedor. Casi nunca lo es. De hecho, suele ser uno de los más baratos.</p>
     <div class="problems-grid">
       <div class="problem-card">
         <div class="problem-num">01</div>
         <div>
-          <div class="problem-title">No puedes saber quién es realmente una fábrica</div>
-          <div class="problem-desc">La mayoría de los proveedores en plataformas públicas son intermediarios que se hacen pasar por fabricantes. Se ven igual, dicen lo mismo, y no tienes forma de saberlo hasta que el embarque equivocado llega a tu puerta.</div>
+          <div class="problem-title">Elegir el proveedor equivocado</div>
+          <div class="problem-desc">Desencadena todo lo demás: retrasos, defectos, rehacer producción, devoluciones, clientes perdidos, reputación dañada. Un proveedor 15% más caro rara vez destruye un negocio. Un proveedor incorrecto sí puede hacerlo.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">02</div>
         <div>
-          <div class="problem-title">Estás pagando más de lo que deberías</div>
-          <div class="problem-desc">Cada intermediario entre tú y la fábrica agrega su margen. Con dos o tres capas, terminas pagando muy por encima del precio real de fábrica, de forma invisible, en cada pedido.</div>
+          <div class="problem-title">Descubrir los problemas cuando la producción ya empezó</div>
+          <div class="problem-desc">En ese punto ya no negocias. Ya dependes de ellos. Ya enviaste el dinero. Ya tienes fechas comprometidas y clientes esperando. No hay salida fácil.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">03</div>
         <div>
-          <div class="problem-title">Los detalles que destruyen tus márgenes</div>
-          <div class="problem-desc">¿Te falta una certificación? Tu producto queda bloqueado en aduana. ¿Especificaciones incorrectas? Asumes el costo. Esto no es raro: le pasa a casi todos los que lo intentan por primera vez.</div>
+          <div class="problem-title">Diseñar un producto que no escala</div>
+          <div class="problem-desc">Un prototipo funciona. 100 unidades funcionan. 10,000 unidades son un desastre. Pasa más de lo que crees, y nadie te avisa hasta que ya es demasiado caro para corregirlo.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">04</div>
         <div>
-          <div class="problem-title">La comunicación es más difícil de lo que imaginas</div>
-          <div class="problem-desc">Diferencia horaria, barreras idiomáticas, llamadas a deshoras. Y aun así, nunca estás del todo seguro de que lo que acordaron es lo que realmente están fabricando. Esa incertidumbre agota, y cuesta.</div>
+          <div class="problem-title">Creer que estás hablando con la fábrica cuando no es así</div>
+          <div class="problem-desc">No porque el intermediario sea deshonesto. Sino porque cuando hay un problema, descubres que nunca tuviste acceso a quien realmente toma las decisiones.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">05</div>
         <div>
-          <div class="problem-title">Pedidos mínimos que no se ajustan a tu realidad</div>
-          <div class="problem-desc">Las fábricas quieren volumen. Tú quieres probar primero. Esa brecha es donde mueren muchas buenas ideas, o donde la gente se compromete de más y termina con inventario que no puede mover.</div>
+          <div class="problem-title">Llegar tarde al mercado</div>
+          <div class="problem-desc">Muchas empresas pierden más dinero por retrasos que por sobrecostes. Perder Navidad. Perder un Prime Day. Perder una temporada entera cuesta mucho más que ahorrar un 5% en fabricación.</div>
         </div>
       </div>
+    </div>
+    <div style="margin-top: 2.5rem; padding: 1.5rem 2rem; background: rgba(30,111,217,0.06); border-left: 2px solid var(--blue); border-radius: 0 8px 8px 0; max-width: 680px;">
+      <p style="font-size: 15px; color: var(--white); line-height: 1.7; font-weight: 400;">El error más caro en manufactura es descubrirlo demasiado tarde. <span style="color: var(--blue-light);">Para eso existe Cimmino Global.</span></p>
     </div>
   </section>
 </div>
