@@ -124,6 +124,17 @@
     transition: background 0.2s;
   }
   .nav-cta:hover { background: var(--blue-light); color: white; }
+  .nav-lang {
+    font-size: 12px; font-weight: 600;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    border: 0.5px solid var(--gray2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.2s;
+  }
+  .nav-lang:hover { color: var(--white); border-color: var(--white); }
 
   /* HERO */
   .hero {
@@ -475,6 +486,7 @@
     <a href="#process">How It Works</a>
     <a href="#story">Our Story</a>
     <a href="#pricing">Get Started</a>
+    <a href="/es" class="nav-lang">ES</a>
     <a href="#" class="nav-cta" onclick="return openTidio();">Start your project</a>
   </div>
   <button class="nav-hamburger" onclick="document.getElementById('nav-mobile').classList.toggle('open')" aria-label="Menu">
@@ -488,6 +500,7 @@
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">How It Works</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Our Story</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile').classList.remove('open')">Get Started</a>
+  <a href="/es" class="nav-lang">ES</a>
   <a href="#" class="nav-cta" onclick="document.getElementById('nav-mobile').classList.remove('open');return openTidio();">Start your project</a>
 </div>
 
