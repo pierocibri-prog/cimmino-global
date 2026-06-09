@@ -108,6 +108,7 @@
     text-decoration: none;
   }
   .nav-logo span { color: var(--blue-light); }
+  .nav-left { display: flex; align-items: center; gap: 1rem; }
   .nav-links { display: flex; gap: 2.5rem; align-items: center; }
   .nav-links a {
     font-size: 13px; font-weight: 400;
@@ -480,13 +481,15 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">CIMMINO<span>.</span>GLOBAL</a>
+  <div class="nav-left">
+    <a href="#" class="nav-logo">CIMMINO<span>.</span>GLOBAL</a>
+    <a href="/es" class="nav-lang">ES</a>
+  </div>
   <div class="nav-links">
-    <a href="#problem">Reality Check</a>
+    <a href="#problem">The Real Cost</a>
     <a href="#process">How It Works</a>
     <a href="#story">Our Story</a>
     <a href="#pricing">Get Started</a>
-    <a href="/es" class="nav-lang">ES</a>
     <a href="#" class="nav-cta" onclick="return openTidio();">Start your project</a>
   </div>
   <button class="nav-hamburger" onclick="document.getElementById('nav-mobile').classList.toggle('open')" aria-label="Menu">
@@ -496,7 +499,7 @@
 
 <!-- MOBILE NAV -->
 <div class="nav-mobile" id="nav-mobile">
-  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">Reality Check</a>
+  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">The Real Cost</a>
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">How It Works</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Our Story</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile').classList.remove('open')">Get Started</a>
@@ -520,45 +523,48 @@
 <!-- PROBLEM -->
 <div id="problem" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
   <section>
-    <div class="section-eyebrow">Sound familiar?</div>
-    <h2>What nobody puts in the brochure</h2>
-    <p class="section-sub">You have a great product idea. You find suppliers online. And then reality hits, because sourcing from China is nothing like it looks from the outside.</p>
+    <div class="section-eyebrow">The Real Cost</div>
+    <h2>The mistakes that really cost you aren't the ones you think.</h2>
+    <p class="section-sub">Most people assume the most expensive mistake is overpaying a supplier. It almost never is. In fact, that's usually one of the cheaper ones.</p>
     <div class="problems-grid">
       <div class="problem-card">
         <div class="problem-num">01</div>
         <div>
-          <div class="problem-title">You can't tell who's actually a factory</div>
-          <div class="problem-desc">Most suppliers on public platforms are traders pretending to be manufacturers. They look the same, say the same things, and you have no way to know until the wrong shipment arrives at your door.</div>
+          <div class="problem-title">Choosing the wrong supplier</div>
+          <div class="problem-desc">It triggers everything else: delays, defects, redoing production, returns, lost clients, damaged reputation. A supplier that charges 15% more rarely kills a business. The wrong supplier can.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">02</div>
         <div>
-          <div class="problem-title">You're paying more than you should</div>
-          <div class="problem-desc">Every middleman between you and the factory adds a margin. Two or three layers in and you're paying well above the real factory price, invisibly, every single order.</div>
+          <div class="problem-title">Finding out about problems after production has started</div>
+          <div class="problem-desc">At that point you're not negotiating. You're dependent. The money is gone. You have deadlines committed and customers waiting. There's no good exit.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">03</div>
         <div>
-          <div class="problem-title">The details that kill your margins</div>
-          <div class="problem-desc">Missing a certification? Your product gets blocked at customs. Wrong specs? You eat the cost. These aren't edge cases, they happen to almost everyone doing this for the first time.</div>
+          <div class="problem-title">Designing a product that doesn't scale</div>
+          <div class="problem-desc">A prototype works. 100 units work. 10,000 units are a disaster. It happens more than you think, and nobody warns you until it's too late to fix it cheaply.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">04</div>
         <div>
-          <div class="problem-title">Communication is harder than you think</div>
-          <div class="problem-desc">Time zones, language barriers, early morning calls, and even then you're never quite sure if what was agreed is actually what's being made. That uncertainty is exhausting, and costly.</div>
+          <div class="problem-title">Thinking you're talking to the factory when you're not</div>
+          <div class="problem-desc">Not because the middleman is dishonest. But because when a problem comes up, you realize you never had access to the people who actually make the decisions.</div>
         </div>
       </div>
       <div class="problem-card">
         <div class="problem-num">05</div>
         <div>
-          <div class="problem-title">Minimum orders that don't match your reality</div>
-          <div class="problem-desc">Factories want volume. You want to test first. That gap is where a lot of good ideas die, or where people over-commit and end up sitting on inventory they can't move.</div>
+          <div class="problem-title">Getting to market too late</div>
+          <div class="problem-desc">Many companies lose more money from delays than from cost overruns. Missing Christmas. Missing Prime Day. Missing an entire season costs far more than saving 5% on manufacturing.</div>
         </div>
       </div>
+    </div>
+    <div style="margin-top: 2.5rem; padding: 1.5rem 2rem; background: rgba(30,111,217,0.06); border-left: 2px solid var(--blue); border-radius: 0 8px 8px 0; max-width: 680px;">
+      <p style="font-size: 15px; color: var(--white); line-height: 1.7; font-weight: 400;">The most expensive manufacturing mistake is discovering it too late. <span style="color: var(--blue-light);">That's what Cimmino Global is here to prevent.</span></p>
     </div>
   </section>
 </div>
