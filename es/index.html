@@ -1000,39 +1000,37 @@
 <script>
 const CG_ENDPOINT = '/api/chat';
 
-const CG_SYSTEM = `Eres un asistente de intake profesional para Cimmino Global, una firma de asesoría en abastecimiento global y manufactura.
+const CG_SYSTEM = `Eres el asistente de intake de Cimmino Global, una firma de asesoria en manufactura y sourcing desde China.
 
-IDIOMA: Esta es la versión en español del sitio. Arranca y conduce la conversación en español latinoamericano (sin "vosotros", usa "ustedes"). Sin embargo, si el usuario escribe en inglés en cualquier momento, cambia al inglés y continúa toda la conversación en ese idioma. Adáptate al idioma del usuario, nunca al revés.
+IDIOMA: Esta es la version en espanol del sitio. Arranca y conduce la conversacion en espanol latinoamericano (sin "vosotros", usa "ustedes"). Si el usuario escribe en ingles en cualquier momento, cambia al ingles y continua toda la conversacion en ese idioma. Adaptate al idioma del usuario, nunca al reves.
 
-Recopila la siguiente información mediante una conversación natural, una o dos preguntas a la vez:
-1. Qué producto quiere fabricar o conseguir
-2. ¿Es un proyecto nuevo o algo que ya lleva un tiempo haciendo?
-3. Mercado objetivo / país de destino
-4. Cantidad de pedido estimada
-5. Presupuesto o costo unitario objetivo
+FLUJO DE PREGUNTAS, una a la vez y en este orden:
+1. Que producto quiere fabricar o conseguir
+2. Su nombre y su correo electronico. Formulalo como un beneficio: "Para enviarte un resumen de lo que hablemos y que nada se pierda, me dejas tu nombre y tu correo?". Si el usuario no quiere darlo todavia, continua con las demas preguntas y vuelve a pedirlo amablemente al final.
+3. Es un proyecto nuevo o algo que ya viene haciendo?
+4. Mercado objetivo / pais de destino
+5. Cantidad estimada del primer pedido, y si tiene un costo objetivo por unidad, que lo comparta
 6. Plazo / urgencia
-7. Requisitos de certificación (CE, FDA, etc.)
-8. ¿Ha trabajado antes con fabricantes en China?
-9. Principal desafío que enfrenta ahora mismo
-10. ¿Tiene especificaciones del producto, muestras o productos de referencia?
-11. Factor más importante: precio, calidad o velocidad
-12. Su nombre y correo electrónico. Pregunta con calidez.
+7. Ha trabajado antes con fabricantes en China?
+8. Principal desafio que enfrenta ahora mismo
 
-Para las preguntas 2, 3, 4, 5, 6, 7, 8, 10, 11: sugiere opciones incluyendo un bloque JSON al final de tu mensaje en este formato exacto:
-[OPTIONS:["opción1","opción2","opción3"]]
+Para las preguntas 3, 4, 5, 6 y 7 sugiere opciones con un bloque JSON al final del mensaje en este formato exacto:
+[OPTIONS:["opcion1","opcion2","opcion3"]]
 
-Para la pregunta 3 (mercado objetivo), las opciones deben ser:
-["Estados Unidos", "Europa", "Latinoamérica", "Asia Pacífico", "Otro"]
+Para la pregunta 4 (mercado objetivo), las opciones deben ser:
+["Estados Unidos", "Europa", "Latinoamerica", "Asia Pacifico", "Otro"]
 
-Para preguntas abiertas (descripción del producto, desafío, nombre, correo) NO incluyas opciones.
+Para preguntas abiertas (producto, nombre y correo, desafio) NO incluyas opciones.
 
-IMPORTANTE: Cuando el usuario proporcione su correo electrónico, incluye esta etiqueta exacta al final de tu respuesta (después de cualquier etiqueta OPTIONS):
-[EMAIL_CAPTURED]
+ETIQUETAS DE CONTROL (muy importante):
+- Cuando el usuario proporcione su correo electronico, incluye esta etiqueta exacta al final de tu respuesta, despues de cualquier etiqueta OPTIONS: [EMAIL_CAPTURED]
+  Incluyela solo la primera vez que recibas el correo, nunca la repitas.
+- Cuando hayas terminado todas las preguntas, despidete con el mensaje de cierre e incluye esta etiqueta exacta al final: [INTAKE_COMPLETE]
 
-Mantén las respuestas en menos de 3 oraciones. Sé profesional y cálido. Nunca uses guiones largos (—), usa comas, puntos o dos puntos.
+Manten las respuestas en menos de 3 oraciones. Se profesional, calido y cercano. Nunca uses guiones largos, usa comas, puntos o dos puntos.
 
-Una vez que tengas toda la información, di:
-"Perfecto, [nombre]. Nos encargamos de todo a partir de aquí. Estaremos en contacto en las próximas 24 horas. Ya tenemos algunas ideas para tu proyecto."`;
+Mensaje de cierre cuando tengas toda la informacion (en el idioma de la conversacion):
+"Perfecto, [nombre]. Nos encargamos de todo a partir de aqui. Estaremos en contacto en las proximas 24 horas. Ya tenemos algunas ideas para tu proyecto."`;
 
 let cgHistory = [];
 let cgLoading = false;
@@ -1126,11 +1124,23 @@ async function cgCallAPI(userMsg) {
       text = full.replace(/\[OPTIONS:\[.*?\]\]/s, '').trim();
     }
 
-    // Detect email captured
+    // Detect email captured: save partial lead silently, chat continues
     if (full.includes('[EMAIL_CAPTURED]')) {
       text = text.replace('[EMAIL_CAPTURED]', '').trim();
-      cgSendEmail();
-      // Fade out chat after 12 seconds
+      if (!window.cgPartialSent) {
+        window.cgPartialSent = true;
+        cgSavePartial();
+      }
+    }
+
+    // Detect intake complete: full automation + close chat
+    if (full.includes('[INTAKE_COMPLETE]')) {
+      text = text.replace('[INTAKE_COMPLETE]', '').trim();
+      if (!window.cgCompleteSent) {
+        window.cgCompleteSent = true;
+        cgSendEmail();
+      }
+      // Fade out chat after 20 seconds
       setTimeout(() => {
         const panel = document.querySelector('.cg-panel');
         const overlay = document.getElementById('cgOverlay');
@@ -1142,7 +1152,7 @@ async function cgCallAPI(userMsg) {
             panel.style.opacity = '1';
           }, 1200);
         }
-      }, 12000);
+      }, 20000);
     }
 
     cgHistory.push({ role: 'assistant', content: full });
@@ -1170,31 +1180,51 @@ function cgSend() {
   cgCallAPI(text);
 }
 
-async function cgSendEmail() {
-  let clientEmail = 'Unknown';
+function cgGetClientEmail() {
   for (let i = cgHistory.length - 1; i >= 0; i--) {
     const msg = cgHistory[i].content;
     const emailMatch = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    if (emailMatch) { clientEmail = emailMatch[0]; break; }
+    if (emailMatch) return emailMatch[0];
   }
+  return 'Unknown';
+}
 
-  // Clean messages before sending
-  const cleanMessages = cgHistory.map(m => ({
+function cgCleanMessages() {
+  return cgHistory.map(m => ({
     role: m.role,
     content: m.content
       .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
       .replace(/\[EMAIL_CAPTURED\]/g, '')
+      .replace(/\[INTAKE_COMPLETE\]/g, '')
       .trim()
   })).filter(m => m.content);
+}
 
+async function cgSavePartial() {
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'lead_partial',
+        clientEmail: cgGetClientEmail(),
+        messages: cgCleanMessages()
+      })
+    });
+  } catch(e) {
+    console.error('Partial save failed:', e);
+  }
+}
+
+async function cgSendEmail() {
   try {
     await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'send_email',
-        clientEmail,
-        messages: cleanMessages
+        clientEmail: cgGetClientEmail(),
+        messages: cgCleanMessages()
       })
     });
   } catch(e) {
