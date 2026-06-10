@@ -19,6 +19,76 @@ module.exports = async function handler(req, res) {
     const body = JSON.parse(rawBody);
 
     // ─────────────────────────────────────────────
+    // FORM LEAD: fired from the mini-form on the page (alternative to chatbot).
+    // Sends email to Piero + saves to Sheets as FORM type.
+    // ─────────────────────────────────────────────
+    if (body.type === 'lead_form') {
+      const name = (body.name || '').toString().slice(0, 120);
+      const email = (body.email || '').toString().slice(0, 160);
+      const project = (body.project || '').toString().slice(0, 1200);
+      const lang = body.lang === 'es' ? 'es' : 'en';
+
+      const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      const formHtml = `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#ffffff;">
+  <div style="border-bottom:2px solid #1E6FD9;padding-bottom:20px;margin-bottom:28px;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:#1E6FD9;text-transform:uppercase;margin-bottom:6px;">CIMMINO.GLOBAL</div>
+    <div style="font-size:22px;font-weight:700;color:#111;">New Lead (Form)</div>
+    <div style="font-size:13px;color:#888;margin-top:4px;">Submitted via the website form, not the chatbot</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+    <tr><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#888;width:30%;">Name</td><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#111;font-weight:500;">${esc(name) || '-'}</td></tr>
+    <tr><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#888;">Email</td><td style="padding:8px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px;color:#1E6FD9;font-weight:600;">${esc(email) || '-'}</td></tr>
+    <tr><td style="padding:8px 0;font-size:13px;color:#888;vertical-align:top;">Project</td><td style="padding:8px 0;font-size:13px;color:#111;line-height:1.6;">${esc(project) || '-'}</td></tr>
+  </table>
+  <div style="background:#f8f9fb;border-radius:8px;padding:16px 20px;border-left:3px solid #1E6FD9;">
+    <div style="font-size:12px;color:#555;line-height:1.6;">This lead preferred the form over the chatbot. Reach out directly to start the conversation. No anteproyecto was generated since the form only collects basic info.</div>
+  </div>
+  <div style="margin-top:18px;">
+    <a href="https://calendly.com/cimminoglobal/30min" style="display:inline-block;background:#1E6FD9;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:13px;font-weight:600;">Open Calendly</a>
+  </div>
+  <div style="font-size:11px;color:#bbb;text-align:center;margin-top:24px;">Cimmino Global - hello@cimminoglobal.com</div>
+</div>`;
+
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+          },
+          body: JSON.stringify({
+            from: 'Cimmino Global <hello@cimminoglobal.com>',
+            to: ['cimminoglobal@gmail.com'],
+            subject: `New lead (form): ${name || 'Unknown'}`,
+            html: formHtml
+          })
+        });
+      } catch(e) {
+        console.error('Form email error:', e.message);
+      }
+
+      try {
+        await fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            product: project,
+            status: 'FORM',
+            notas_clave: 'Lead via formulario web. Prefirio no usar el chatbot.'
+          })
+        });
+      } catch(e) {
+        console.error('Form sheets error:', e.message);
+      }
+
+      return res.status(200).json({ success: true, form: true });
+    }
+
+    // ─────────────────────────────────────────────
     // GUIDE LEAD: fired when someone requests the free guide.
     // Saves to Sheets as GUIA type. No anteproyecto, no email to Piero.
     // ─────────────────────────────────────────────
