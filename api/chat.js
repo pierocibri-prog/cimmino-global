@@ -6,6 +6,8 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzyK1TFnq0gtYOSkm480SxQu_81K7ac3me5w10C-7PZ8nKc2CAXYwby4BC1DaMVwLov8A/exec';
+
   try {
     const rawBody = await new Promise((resolve, reject) => {
       let data = '';
@@ -16,6 +18,89 @@ module.exports = async function handler(req, res) {
 
     const body = JSON.parse(rawBody);
 
+    // ─────────────────────────────────────────────
+    // PARTIAL LEAD: fired when email is captured early.
+    // Saves the lead to Google Sheets silently. No email, no chat close.
+    // ─────────────────────────────────────────────
+    if (body.type === 'lead_partial') {
+      const { clientEmail, messages } = body;
+
+      const cleanConvo = (messages || []).map(m => {
+        const role = m.role === 'user' ? 'Client' : 'Advisor';
+        const content = (m.content || '')
+          .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
+          .replace(/\[EMAIL_CAPTURED\]/g, '')
+          .replace(/\[INTAKE_COMPLETE\]/g, '')
+          .trim();
+        return content ? `${role}: ${content}` : null;
+      }).filter(Boolean).join('\n');
+
+      // Minimal extraction: name, email, product only
+      let partial = { name: 'Unknown', email: clientEmail, product: '' };
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+          const extractRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01'
+            },
+            signal: controller.signal,
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-5',
+              max_tokens: 300,
+              messages: [{
+                role: 'user',
+                content: `Extract from this intake conversation and return ONLY raw JSON, no markdown, no explanation:
+{"name": "client name or Unknown", "email": "client email", "product": "short product description"}
+
+Conversation:
+${cleanConvo}`
+              }]
+            })
+          });
+          const extractData = await extractRes.json();
+          const rawText = (extractData.content || []).map(b => b.text || '').join('');
+          const parsed = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+          partial = {
+            name: parsed.name || 'Unknown',
+            email: parsed.email || clientEmail,
+            product: parsed.product || ''
+          };
+        } finally {
+          clearTimeout(timeout);
+        }
+      } catch(e) {
+        console.error('Partial extraction failed, using fallback:', e.message);
+      }
+
+      // Save to Google Sheets with PARCIAL status
+      try {
+        await fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: partial.name,
+            email: partial.email,
+            product: partial.product,
+            status: 'PARCIAL',
+            notas_clave: 'PARCIAL: email capturado, intake en progreso. Si no llega la version completa, el cliente abandono el chat.'
+          })
+        });
+      } catch(e) {
+        console.error('Sheets partial error:', e.message);
+      }
+
+      return res.status(200).json({ success: true, partial: true });
+    }
+
+    // ─────────────────────────────────────────────
+    // COMPLETE LEAD: fired when the intake finishes.
+    // Full analysis, anteproyecto, email to Piero, Sheets with COMPLETO status.
+    // ─────────────────────────────────────────────
     if (body.type === 'send_email') {
       const { clientEmail, messages } = body;
 
@@ -25,6 +110,7 @@ module.exports = async function handler(req, res) {
         const content = (m.content || '')
           .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
           .replace(/\[EMAIL_CAPTURED\]/g, '')
+          .replace(/\[INTAKE_COMPLETE\]/g, '')
           .trim();
         return content ? `${role}: ${content}` : null;
       }).filter(Boolean).join('\n');
@@ -52,7 +138,9 @@ module.exports = async function handler(req, res) {
 
 First, detect the language of the conversation (English or Spanish).
 
-Then analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON). Generate ALL text fields in the detected conversation language. If Spanish, use Latin American Spanish (no vosotros):
+Then analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON). Generate ALL text fields in the detected conversation language. If Spanish, use Latin American Spanish (no vosotros).
+
+The intake covers: product, contact, project stage, market, volume and target cost, timeline, China experience, and main challenge. Certifications, specs and priority are NOT asked in the chat. For lead fields that were not discussed, write "No discutido" (Spanish) or "Not discussed" (English). For "certificaciones_requeridas" in the anteproyecto, INFER the certifications likely required based on the product and target market using your own knowledge. For "priority", infer High / Medium / Low from volume, timeline and overall seriousness of the lead:
 
 {
   "language": "english or spanish",
@@ -65,10 +153,10 @@ Then analyze this intake conversation and return a JSON object with exactly this
     "volume": "order quantity",
     "budget": "budget or target cost",
     "timeline": "timeline",
-    "certifications": "certification needs",
+    "certifications": "certification needs if mentioned, otherwise Not discussed",
     "china_experience": "Yes / No / Has had challenges",
     "pain_point": "main challenge in one sentence",
-    "specs_available": "Yes / Partial / No",
+    "specs_available": "Yes / Partial / No / Not discussed",
     "priority": "High / Medium / Low"
   },
   "draft_email": {
@@ -80,7 +168,7 @@ Then analyze this intake conversation and return a JSON object with exactly this
     "viabilidad": "High / Medium / Low",
     "riesgo": "High / Medium / Low",
     "tipo_sourcing": "e.g. Direct factory, Verified trader, OEM, Private label",
-    "certificaciones_requeridas": "specific certifications needed",
+    "certificaciones_requeridas": "specific certifications needed, inferred from product and market",
     "fee_sugerido": "estimated fee range in euros",
     "preguntas_clave": ["question 1 in detected language", "question 2", "question 3", "question 4", "question 5"],
     "proximos_pasos": ["step 1 in detected language", "step 2", "step 3"]
@@ -210,13 +298,14 @@ ${cleanConvo}`
         })
       });
 
-      // Send to Google Sheets
+      // Send to Google Sheets with COMPLETO status
       try {
-        await fetch('https://script.google.com/macros/s/AKfycbzyK1TFnq0gtYOSkm480SxQu_81K7ac3me5w10C-7PZ8nKc2CAXYwby4BC1DaMVwLov8A/exec', {
+        await fetch(SHEETS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...lead,
+            status: 'COMPLETO',
             notas_clave: anteproyecto.resumen || ''
           })
         });
