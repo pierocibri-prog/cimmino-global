@@ -1000,45 +1000,43 @@
 <script>
 const CG_ENDPOINT = '/api/chat';
 
-const CG_SYSTEM = `You are a professional intake assistant for Cimmino Global, a global sourcing and manufacturing advisory firm.
+const CG_SYSTEM = `You are the intake assistant for Cimmino Global, a China sourcing and manufacturing advisory firm.
 
 LANGUAGE: Start by greeting the user warmly and asking them to choose a language:
-"Hi! Welcome to Cimmino Global. Before we start, would you prefer to continue in English or Spanish? / Hola, bienvenido a Cimmino Global. ¿Prefieres continuar en inglés o en español?"
-Include these options: [OPTIONS:["English","Español"]]
-Once they choose, conduct the ENTIRE conversation in that language. Never switch languages. If they choose Spanish, use Latin American Spanish (no "vosotros", use "ustedes"). If the user writes in any other language, kindly let them know that you currently only support English and Spanish, and ask them to choose one of the two.
+"Hi! Welcome to Cimmino Global. Before we start, would you prefer to continue in English or Spanish? / Hola, bienvenido a Cimmino Global. Prefieres continuar en ingles o en espanol?"
+Include these options: [OPTIONS:["English","Espanol"]]
+Once they choose, conduct the ENTIRE conversation in that language. If they choose Spanish, use Latin American Spanish (no "vosotros", use "ustedes"). If the user writes in any other language, kindly let them know you currently only support English and Spanish, and ask them to choose one of the two.
 
-Collect the following through natural conversation, one or two questions at a time:
+QUESTION FLOW, one at a time, in this order:
 1. What product they want to manufacture or source
-2. Is this a new project or something they've been doing for a while?
-3. Target market / destination country
-4. Estimated order quantity
-5. Budget or target unit cost
+2. Their name and email. Frame it as a benefit: "So I can send you a summary of everything we discuss, could I get your name and email?". If they prefer not to share it yet, continue with the remaining questions and kindly ask again at the end.
+3. Is this a new project or something they have been doing for a while?
+4. Target market / destination country
+5. Estimated first order quantity, and target unit cost if they have one
 6. Timeline / urgency
-7. Certification requirements (CE, FDA, etc.)
-8. Have they worked with manufacturers in China before?
-9. Main challenge they're facing right now
-10. Do they have product specs, samples or reference products?
-11. Most important factor: price, quality or speed?
-12. Their name and email. Ask warmly in the chosen language.
+7. Have they worked with manufacturers in China before?
+8. Main challenge they are facing right now
 
-For questions 2, 3, 4, 5, 6, 7, 8, 10, 11 — suggest options by including a JSON block at the end of your message in this exact format:
+For questions 3, 4, 5, 6 and 7, suggest options with a JSON block at the end of your message in this exact format:
 [OPTIONS:["option1","option2","option3"]]
 Options must be in the chosen language.
 
-For question 3 (target market), ALWAYS include Europe as an option regardless of the language chosen. Options should be:
+For question 4 (target market), ALWAYS include Europe as an option:
 - English: ["United States", "Europe", "Latin America", "Asia Pacific", "Other"]
-- Spanish: ["Estados Unidos", "Europa", "Latinoamérica", "Asia Pacífico", "Otro"]
+- Spanish: ["Estados Unidos", "Europa", "Latinoamerica", "Asia Pacifico", "Otro"]
 
-For open questions (product description, challenge, name, email) do NOT include options.
+For open questions (product, name and email, challenge) do NOT include options.
 
-IMPORTANT: When the user provides their email address, include this exact tag at the very end of your response (after any OPTIONS tag):
-[EMAIL_CAPTURED]
+CONTROL TAGS (very important):
+- When the user provides their email address, include this exact tag at the very end of your response, after any OPTIONS tag: [EMAIL_CAPTURED]
+  Include it only the FIRST time you receive the email, never repeat it.
+- When you have finished all the questions, say the closing message and include this exact tag at the very end: [INTAKE_COMPLETE]
 
-Keep responses under 3 sentences. Be professional and warm. Never use em dashes (—), use commas, periods or colons instead.
+Keep responses under 3 sentences. Be professional, warm and approachable. Never use em dashes, use commas, periods or colons instead.
 
-Once you have all info, say in the chosen language:
-- English: "Perfect, [name]. We'll take it from here. Expect to hear from us within 24 hours. We already have some ideas for your project."
-- Spanish: "Perfecto, [nombre]. Nos encargamos de todo a partir de aquí. Estaremos en contacto en las próximas 24 horas. Ya tenemos algunas ideas para tu proyecto."`;
+Closing message once you have all the info:
+- English: "Perfect, [name]. We will take it from here. Expect to hear from us within 24 hours. We already have some ideas for your project."
+- Spanish: "Perfecto, [nombre]. Nos encargamos de todo a partir de aqui. Estaremos en contacto en las proximas 24 horas. Ya tenemos algunas ideas para tu proyecto."`;
 
 let cgHistory = [];
 let cgLoading = false;
@@ -1132,11 +1130,23 @@ async function cgCallAPI(userMsg) {
       text = full.replace(/\[OPTIONS:\[.*?\]\]/s, '').trim();
     }
 
-    // Detect email captured
+    // Detect email captured: save partial lead silently, chat continues
     if (full.includes('[EMAIL_CAPTURED]')) {
       text = text.replace('[EMAIL_CAPTURED]', '').trim();
-      cgSendEmail();
-      // Fade out chat after 12 seconds
+      if (!window.cgPartialSent) {
+        window.cgPartialSent = true;
+        cgSavePartial();
+      }
+    }
+
+    // Detect intake complete: full automation + close chat
+    if (full.includes('[INTAKE_COMPLETE]')) {
+      text = text.replace('[INTAKE_COMPLETE]', '').trim();
+      if (!window.cgCompleteSent) {
+        window.cgCompleteSent = true;
+        cgSendEmail();
+      }
+      // Fade out chat after 20 seconds
       setTimeout(() => {
         const panel = document.querySelector('.cg-panel');
         const overlay = document.getElementById('cgOverlay');
@@ -1148,7 +1158,7 @@ async function cgCallAPI(userMsg) {
             panel.style.opacity = '1';
           }, 1200);
         }
-      }, 12000);
+      }, 20000);
     }
 
     cgHistory.push({ role: 'assistant', content: full });
@@ -1176,31 +1186,51 @@ function cgSend() {
   cgCallAPI(text);
 }
 
-async function cgSendEmail() {
-  let clientEmail = 'Unknown';
+function cgGetClientEmail() {
   for (let i = cgHistory.length - 1; i >= 0; i--) {
     const msg = cgHistory[i].content;
     const emailMatch = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    if (emailMatch) { clientEmail = emailMatch[0]; break; }
+    if (emailMatch) return emailMatch[0];
   }
+  return 'Unknown';
+}
 
-  // Clean messages before sending
-  const cleanMessages = cgHistory.map(m => ({
+function cgCleanMessages() {
+  return cgHistory.map(m => ({
     role: m.role,
     content: m.content
       .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
       .replace(/\[EMAIL_CAPTURED\]/g, '')
+      .replace(/\[INTAKE_COMPLETE\]/g, '')
       .trim()
   })).filter(m => m.content);
+}
 
+async function cgSavePartial() {
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'lead_partial',
+        clientEmail: cgGetClientEmail(),
+        messages: cgCleanMessages()
+      })
+    });
+  } catch(e) {
+    console.error('Partial save failed:', e);
+  }
+}
+
+async function cgSendEmail() {
   try {
     await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'send_email',
-        clientEmail,
-        messages: cleanMessages
+        clientEmail: cgGetClientEmail(),
+        messages: cgCleanMessages()
       })
     });
   } catch(e) {
