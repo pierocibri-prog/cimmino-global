@@ -117,16 +117,17 @@
   }
   .nav-cta:hover { background: var(--blue-light); color: white; }
   .nav-lang {
-    font-size: 12px; font-weight: 600;
-    color: var(--gray);
-    letter-spacing: 0.1em;
+    font-size: 10.5px; font-weight: 600;
+    color: var(--gray2);
+    letter-spacing: 0.08em;
     text-decoration: none;
-    border: 0.5px solid var(--gray2);
-    padding: 5px 10px;
-    border-radius: 5px;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    padding: 3px 8px;
+    border-radius: 4px;
     transition: all 0.2s;
+    opacity: 0.85;
   }
-  .nav-lang:hover { color: var(--white); border-color: var(--white); }
+  .nav-lang:hover { color: var(--white); border-color: rgba(255,255,255,0.4); opacity: 1; }
   @media (max-width: 640px) {
     .nav-left .nav-lang { display: none; }
   }
@@ -1033,7 +1034,7 @@ CONTROL TAGS (very important):
 - When you have finished all the questions, say the closing message and include this exact tag at the very end: [INTAKE_COMPLETE]
 
 FREE GUIDE (for those just exploring):
-If at any point the user signals they are just exploring, that they don't have anything concrete yet, that it's just an idea, or that they are not ready to move forward, do NOT pressure them with more questions. Instead, offer our free guide: "I understand. If you'd like, I can send you our guide on the 5 most expensive mistakes when manufacturing in China and how to avoid them. I just need your name and email, and I'll send you the download link." If they accept, ask for name and email (if you don't have them yet). When they give you the email for the guide, deliver the download link in your message: https://cimminoglobal.com/Guia-5-Errores-Cimmino-Global.pdf and include this exact tag at the very end: [GUIDE_SENT]. After delivering the guide, warmly and without pressure invite them to tell you about their project when they're ready, and if they want to continue, proceed with the normal question flow.
+If at any point the user signals they are just exploring, that they don't have anything concrete yet, that it's just an idea, or that they are not ready to move forward, do NOT pressure them with more questions. Instead, offer our free guide: "I understand. If you'd like, I can send you our guide on the 5 most expensive mistakes when manufacturing in China and how to avoid them. I just need your name and email, and I'll send you the download link." If they accept, ask for name and email (if you don't have them yet). When they give you the email for the guide, deliver the download link in your message: https://cimminoglobal.com/guia.pdf and include this exact tag at the very end: [GUIDE_SENT]. After delivering the guide, warmly and without pressure invite them to tell you about their project when they're ready, and if they want to continue, proceed with the normal question flow.
 
 Keep responses under 3 sentences. Be professional, warm and approachable. Never use em dashes, use commas, periods or colons instead.
 
@@ -1053,7 +1054,16 @@ function cgAddMessage(role, text) {
   av.textContent = role === 'user' ? 'You' : 'CG';
   const bubble = document.createElement('div');
   bubble.className = 'cg-bubble';
-  bubble.textContent = text;
+  // Escape HTML first (security), then linkify URLs
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  bubble.innerHTML = escaped.replace(
+    /(https?:\/\/[^\s]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--blue-light);text-decoration:underline;">$1</a>'
+  );
   wrapper.appendChild(av);
   wrapper.appendChild(bubble);
   msgs.appendChild(wrapper);
