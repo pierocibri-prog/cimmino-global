@@ -127,14 +127,6 @@
     transition: all 0.2s;
   }
   .nav-lang:hover { color: var(--white); border-color: var(--white); }
-  .story-flex { display: flex; gap: 3rem; align-items: center; }
-  .story-flex > div:first-child { flex: 1 1 58%; }
-  .story-photo { flex: 1 1 42%; min-width: 0; }
-  .story-photo img { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
-  @media (max-width: 860px) {
-    .story-flex { flex-direction: column; gap: 1rem; }
-    .story-photo img { max-width: 300px; }
-  }
   @media (max-width: 640px) {
     .nav-left .nav-lang { display: none; }
   }
@@ -670,18 +662,16 @@
 <section id="story">
   <div class="section-eyebrow">Our Story</div>
   <h2>Why we built this.</h2>
-  <div class="story-flex">
   <div style="max-width: 640px;">
     <p style="font-size: 19px; line-height: 1.75; color: var(--white); margin-bottom: 1.75rem; font-weight: 300; letter-spacing: -0.01em;">I'll be honest with you. The first time I sourced a product from China I had no idea what I was walking into.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">I didn't know that most "manufacturers" online are actually middlemen charging you their margin on top of the factory price. I didn't know that getting the certifications wrong means your product gets blocked at customs, after you've already paid for production. I didn't know that a wrong packaging size can quietly eat your shipping budget and your storage costs for months.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">I learned all of this the hard way. With my own money. On my own time.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 2.5rem;">That's why I started Cimmino Global. Because everything I paid to learn, you shouldn't have to. I take care of the whole process, from finding the right factory to closing the deal, so you can focus on your business, not on becoming a sourcing expert.</p>
     <div style="width: 40px; height: 1px; background: rgba(30,111,217,0.4); margin-bottom: 1.5rem;"></div>
-    <img src="/signature.png" alt="Piero Cimmino signature" style="height: 72px; opacity: 0.8; display: block;">
-  </div>
-  <div class="story-photo">
-    <img src="/piero.png" alt="Piero Cimmino, founder of Cimmino Global">
-  </div>
+    <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+      <img src="/piero.jpg" alt="Piero Cimmino, founder of Cimmino Global" style="width: 170px; height: auto; display: block; border-radius: 6px;">
+      <img src="/signature.png" alt="Piero Cimmino signature" style="height: 72px; opacity: 0.8; display: block;">
+    </div>
   </div>
 </section>
 
