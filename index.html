@@ -9,7 +9,11 @@
 <meta property="og:title" content="Cimmino Global | China Sourcing & Manufacturing Advisory">
 <meta property="og:description" content="Your direct line to verified factories in China. We handle sourcing, negotiation and compliance with full transparency, end to end.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://cimminoglobal.com">
+<meta property="og:url" content="https://cimminoglobal.com/">
+<link rel="canonical" href="https://cimminoglobal.com/">
+<link rel="alternate" hreflang="en" href="https://cimminoglobal.com/">
+<link rel="alternate" hreflang="es" href="https://cimminoglobal.com/es">
+<link rel="alternate" hreflang="x-default" href="https://cimminoglobal.com/">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -56,19 +60,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  /* Disable text selection */
-  * {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-  /* Allow selection inside chatbot input */
-  .cg-input, .cg-input * {
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    user-select: text;
-  }
   :root {
     --bg: #080C14;
     --bg2: #0D1420;
@@ -1281,22 +1272,6 @@ async function cgInit() {
 document.getElementById('cgOverlay').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
 });
-</script>
-
-<!-- Content Protection -->
-<script>
-  // Block right click
-  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  // Block Ctrl+C, Ctrl+U, Ctrl+S, Ctrl+A, F12
-  document.addEventListener('keydown', function(e) {
-    if (
-      (e.ctrlKey && ['c','u','s','a','p'].includes(e.key.toLowerCase())) ||
-      e.key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()))
-    ) {
-      e.preventDefault();
-    }
-  });
 </script>
 
 </body>
