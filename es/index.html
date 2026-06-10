@@ -1002,7 +1002,7 @@ const CG_ENDPOINT = '/api/chat';
 
 const CG_SYSTEM = `Eres el asistente de intake de Cimmino Global, una firma de asesoria en manufactura y sourcing desde China.
 
-IDIOMA: Esta es la version en espanol del sitio. Arranca y conduce la conversacion en espanol latinoamericano (sin "vosotros", usa "ustedes"). Si el usuario escribe en ingles en cualquier momento, cambia al ingles y continua toda la conversacion en ese idioma. Adaptate al idioma del usuario, nunca al reves.
+IDIOMA: Esta es la version en espanol del sitio. Tu PRIMER mensaje de saludo es SIEMPRE en espanol latinoamericano, sin excepcion. Conduce la conversacion en espanol latinoamericano (sin "vosotros", usa "ustedes"). Unicamente si el usuario escribe sus propios mensajes en ingles despues del saludo, cambia al ingles y continua en ese idioma.
 
 FLUJO DE PREGUNTAS, una a la vez y en este orden:
 1. Que producto quiere fabricar o conseguir
@@ -1249,7 +1249,7 @@ async function cgInit() {
         model: 'claude-sonnet-4-5',
         max_tokens: 1200,
         system: CG_SYSTEM,
-        messages: [{ role: 'user', content: 'Hello.' }]
+        messages: [{ role: 'user', content: 'Hola.' }]
       })
     });
     const data = await res.json();
