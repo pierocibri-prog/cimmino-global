@@ -19,6 +19,84 @@ module.exports = async function handler(req, res) {
     const body = JSON.parse(rawBody);
 
     // ─────────────────────────────────────────────
+    // GUIDE LEAD: fired when someone requests the free guide.
+    // Saves to Sheets as GUIA type. No anteproyecto, no email to Piero.
+    // ─────────────────────────────────────────────
+    if (body.type === 'lead_guide') {
+      const { clientEmail, messages } = body;
+
+      const cleanConvo = (messages || []).map(m => {
+        const role = m.role === 'user' ? 'Client' : 'Advisor';
+        const content = (m.content || '')
+          .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
+          .replace(/\[EMAIL_CAPTURED\]/g, '')
+          .replace(/\[INTAKE_COMPLETE\]/g, '')
+          .replace(/\[GUIDE_SENT\]/g, '')
+          .trim();
+        return content ? `${role}: ${content}` : null;
+      }).filter(Boolean).join('\n');
+
+      let guide = { name: 'Unknown', email: clientEmail, product: '' };
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+          const extractRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01'
+            },
+            signal: controller.signal,
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-5',
+              max_tokens: 300,
+              messages: [{
+                role: 'user',
+                content: `Extract from this conversation and return ONLY raw JSON, no markdown:
+{"name": "client name or Unknown", "email": "client email", "product": "what they want to make if mentioned, otherwise empty string"}
+
+Conversation:
+${cleanConvo}`
+              }]
+            })
+          });
+          const extractData = await extractRes.json();
+          const rawText = (extractData.content || []).map(b => b.text || '').join('');
+          const parsed = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+          guide = {
+            name: parsed.name || 'Unknown',
+            email: parsed.email || clientEmail,
+            product: parsed.product || ''
+          };
+        } finally {
+          clearTimeout(timeout);
+        }
+      } catch(e) {
+        console.error('Guide extraction failed, using fallback:', e.message);
+      }
+
+      try {
+        await fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: guide.name,
+            email: guide.email,
+            product: guide.product,
+            status: 'GUIA',
+            notas_clave: 'Descargo la guia de los 5 errores. Lead en fase de exploracion.'
+          })
+        });
+      } catch(e) {
+        console.error('Sheets guide error:', e.message);
+      }
+
+      return res.status(200).json({ success: true, guide: true });
+    }
+
+    // ─────────────────────────────────────────────
     // PARTIAL LEAD: fired when email is captured early.
     // Saves the lead to Google Sheets silently. No email, no chat close.
     // ─────────────────────────────────────────────
