@@ -87,7 +87,7 @@ ${cleanConvo}`
             email: partial.email,
             product: partial.product,
             status: 'PARCIAL',
-            notas_clave: 'PARCIAL: email capturado, intake en progreso. Si no llega la version completa, el cliente abandono el chat.'
+            notas_clave: ''
           })
         });
       } catch(e) {
@@ -140,7 +140,13 @@ First, detect the language of the conversation (English or Spanish).
 
 Then analyze this intake conversation and return a JSON object with exactly this structure (no markdown, no explanation, just raw JSON). Generate ALL text fields in the detected conversation language. If Spanish, use Latin American Spanish (no vosotros).
 
-The intake covers: product, contact, project stage, market, volume and target cost, timeline, China experience, and main challenge. Certifications, specs and priority are NOT asked in the chat. For lead fields that were not discussed, write "No discutido" (Spanish) or "Not discussed" (English). For "certificaciones_requeridas" in the anteproyecto, INFER the certifications likely required based on the product and target market using your own knowledge. For "priority", infer High / Medium / Low from volume, timeline and overall seriousness of the lead:
+The intake covers: product, contact, project stage, market, volume and target cost, timeline, China experience, and main challenge. Certifications, specs and priority are NOT asked in the chat. For lead fields that were not discussed, write "No discutido" (Spanish) or "Not discussed" (English). For "certificaciones_requeridas" in the anteproyecto, INFER the certifications likely required based on the product and target market using your own knowledge. For "priority", infer High / Medium / Low from volume, timeline and overall seriousness of the lead.
+
+For "fee_sugerido", use Cimmino Global's REAL pricing model, never invent other numbers:
+- Simple project (standard product, no complex certifications, moderate volume): 500 to 1000 EUR
+- Medium project (some customization or basic certifications like CE, larger volume): 1000 to 2000 EUR
+- Complex project (OEM or custom development, regulated categories like food, pharma or electronics with FDA or UL, high volume or multiple suppliers): 2000 to 4000 EUR
+Pick a narrower range inside the right tier based on the specifics, and ALWAYS format fee_sugerido as: "Proyecto: X-Y EUR + 8% por pedido" (Spanish) or "Project: X-Y EUR + 8% per order" (English):
 
 {
   "language": "english or spanish",
@@ -161,7 +167,7 @@ The intake covers: product, contact, project stage, market, volume and target co
   },
   "draft_email": {
     "subject": "email subject line in detected language",
-    "body": "professional but warm email body in the detected language, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. Do NOT include the Calendly link in the body. End with: Best regards, Piero (English) or Saludos, Piero (Spanish)"
+    "body": "professional but warm email body in the detected language, written in first person from Piero. Address the client by name, reference their specific product and key details from the conversation, keep it under 120 words, no placeholders. NEVER mention prices, fees, commissions or percentages in this email, pricing is only discussed in the call. Do NOT include the Calendly link in the body. End with: Best regards, Piero (English) or Saludos, Piero (Spanish)"
   },
   "anteproyecto": {
     "resumen": "2-3 sentence executive summary in detected language",
@@ -306,7 +312,10 @@ ${cleanConvo}`
           body: JSON.stringify({
             ...lead,
             status: 'COMPLETO',
-            notas_clave: anteproyecto.resumen || ''
+            notas_clave: [
+              anteproyecto.fee_sugerido || '',
+              anteproyecto.riesgo ? `Riesgo: ${anteproyecto.riesgo}` : ''
+            ].filter(Boolean).join(' | ')
           })
         });
       } catch(e) {
