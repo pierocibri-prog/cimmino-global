@@ -117,16 +117,17 @@
   }
   .nav-cta:hover { background: var(--blue-light); color: white; }
   .nav-lang {
-    font-size: 12px; font-weight: 600;
-    color: var(--gray);
-    letter-spacing: 0.1em;
+    font-size: 10.5px; font-weight: 600;
+    color: var(--gray2);
+    letter-spacing: 0.08em;
     text-decoration: none;
-    border: 0.5px solid var(--gray2);
-    padding: 5px 10px;
-    border-radius: 5px;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    padding: 3px 8px;
+    border-radius: 4px;
     transition: all 0.2s;
+    opacity: 0.85;
   }
-  .nav-lang:hover { color: var(--white); border-color: var(--white); }
+  .nav-lang:hover { color: var(--white); border-color: rgba(255,255,255,0.4); opacity: 1; }
   @media (max-width: 640px) {
     .nav-left .nav-lang { display: none; }
   }
@@ -1028,7 +1029,7 @@ ETIQUETAS DE CONTROL (muy importante):
 - Cuando hayas terminado todas las preguntas, despidete con el mensaje de cierre e incluye esta etiqueta exacta al final: [INTAKE_COMPLETE]
 
 GUIA GRATUITA (para quien esta explorando):
-Si en cualquier momento el usuario da senales de que solo esta explorando, que todavia no tiene nada concreto, que es solo una idea, o que no esta listo para avanzar, NO lo presiones con mas preguntas. En vez de eso, ofrecele nuestra guia gratuita: "Te entiendo. Si quieres, te puedo enviar nuestra guia con los 5 errores mas caros al fabricar en China y como evitarlos. Solo necesito tu nombre y tu correo, y te paso el enlace de descarga." Si acepta, pidele nombre y correo (si no los tienes aun). Cuando te de el correo para la guia, entrega el enlace de descarga en tu mensaje: https://cimminoglobal.com/Guia-5-Errores-Cimmino-Global.pdf e incluye esta etiqueta exacta al final: [GUIDE_SENT]. Despues de entregar la guia, invitalo con calidez y sin presionar a contarte su proyecto cuando este listo, y si quiere seguir, continua con el flujo normal de preguntas.
+Si en cualquier momento el usuario da senales de que solo esta explorando, que todavia no tiene nada concreto, que es solo una idea, o que no esta listo para avanzar, NO lo presiones con mas preguntas. En vez de eso, ofrecele nuestra guia gratuita: "Te entiendo. Si quieres, te puedo enviar nuestra guia con los 5 errores mas caros al fabricar en China y como evitarlos. Solo necesito tu nombre y tu correo, y te paso el enlace de descarga." Si acepta, pidele nombre y correo (si no los tienes aun). Cuando te de el correo para la guia, entrega el enlace de descarga en tu mensaje: https://cimminoglobal.com/guia.pdf e incluye esta etiqueta exacta al final: [GUIDE_SENT]. Despues de entregar la guia, invitalo con calidez y sin presionar a contarte su proyecto cuando este listo, y si quiere seguir, continua con el flujo normal de preguntas.
 
 Manten las respuestas en menos de 3 oraciones. Se profesional, calido y cercano. Nunca uses guiones largos, usa comas, puntos o dos puntos.
 
@@ -1047,7 +1048,16 @@ function cgAddMessage(role, text) {
   av.textContent = role === 'user' ? 'You' : 'CG';
   const bubble = document.createElement('div');
   bubble.className = 'cg-bubble';
-  bubble.textContent = text;
+  // Escape HTML first (security), then linkify URLs
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  bubble.innerHTML = escaped.replace(
+    /(https?:\/\/[^\s]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--blue-light);text-decoration:underline;">$1</a>'
+  );
   wrapper.appendChild(av);
   wrapper.appendChild(bubble);
   msgs.appendChild(wrapper);
