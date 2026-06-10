@@ -1023,9 +1023,12 @@ Para la pregunta 4 (mercado objetivo), las opciones deben ser:
 Para preguntas abiertas (producto, nombre y correo, desafio) NO incluyas opciones.
 
 ETIQUETAS DE CONTROL (muy importante):
-- Cuando el usuario proporcione su correo electronico, incluye esta etiqueta exacta al final de tu respuesta, despues de cualquier etiqueta OPTIONS: [EMAIL_CAPTURED]
+- Cuando el usuario proporcione su correo electronico durante el intake, incluye esta etiqueta exacta al final de tu respuesta, despues de cualquier etiqueta OPTIONS: [EMAIL_CAPTURED]
   Incluyela solo la primera vez que recibas el correo, nunca la repitas.
 - Cuando hayas terminado todas las preguntas, despidete con el mensaje de cierre e incluye esta etiqueta exacta al final: [INTAKE_COMPLETE]
+
+GUIA GRATUITA (para quien esta explorando):
+Si en cualquier momento el usuario da senales de que solo esta explorando, que todavia no tiene nada concreto, que es solo una idea, o que no esta listo para avanzar, NO lo presiones con mas preguntas. En vez de eso, ofrecele nuestra guia gratuita: "Te entiendo. Si quieres, te puedo enviar nuestra guia con los 5 errores mas caros al fabricar en China y como evitarlos. Solo necesito tu nombre y tu correo, y te paso el enlace de descarga." Si acepta, pidele nombre y correo (si no los tienes aun). Cuando te de el correo para la guia, entrega el enlace de descarga en tu mensaje: https://cimminoglobal.com/Guia-5-Errores-Cimmino-Global.pdf e incluye esta etiqueta exacta al final: [GUIDE_SENT]. Despues de entregar la guia, invitalo con calidez y sin presionar a contarte su proyecto cuando este listo, y si quiere seguir, continua con el flujo normal de preguntas.
 
 Manten las respuestas en menos de 3 oraciones. Se profesional, calido y cercano. Nunca uses guiones largos, usa comas, puntos o dos puntos.
 
@@ -1133,6 +1136,15 @@ async function cgCallAPI(userMsg) {
       }
     }
 
+    // Detect guide sent: save guide lead to Sheets, chat continues
+    if (full.includes('[GUIDE_SENT]')) {
+      text = text.replace('[GUIDE_SENT]', '').trim();
+      if (!window.cgGuideSent) {
+        window.cgGuideSent = true;
+        cgSaveGuide();
+      }
+    }
+
     // Detect intake complete: full automation + close chat
     if (full.includes('[INTAKE_COMPLETE]')) {
       text = text.replace('[INTAKE_COMPLETE]', '').trim();
@@ -1196,6 +1208,7 @@ function cgCleanMessages() {
       .replace(/\[OPTIONS:\[.*?\]\]/gs, '')
       .replace(/\[EMAIL_CAPTURED\]/g, '')
       .replace(/\[INTAKE_COMPLETE\]/g, '')
+      .replace(/\[GUIDE_SENT\]/g, '')
       .trim()
   })).filter(m => m.content);
 }
@@ -1213,6 +1226,22 @@ async function cgSavePartial() {
     });
   } catch(e) {
     console.error('Partial save failed:', e);
+  }
+}
+
+async function cgSaveGuide() {
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'lead_guide',
+        clientEmail: cgGetClientEmail(),
+        messages: cgCleanMessages()
+      })
+    });
+  } catch(e) {
+    console.error('Guide save failed:', e);
   }
 }
 
