@@ -117,17 +117,35 @@
   }
   .nav-cta:hover { background: var(--blue-light); color: white; }
   .nav-lang {
-    font-size: 10.5px; font-weight: 600;
-    color: var(--gray2);
+    font-size: 11px; font-weight: 600;
+    color: var(--gray);
     letter-spacing: 0.08em;
     text-decoration: none;
-    border: 0.5px solid rgba(255,255,255,0.12);
-    padding: 3px 8px;
-    border-radius: 4px;
+    border: 0.5px solid rgba(255,255,255,0.18);
+    padding: 4px 9px;
+    border-radius: 5px;
     transition: all 0.2s;
-    opacity: 0.85;
+    opacity: 0.9;
   }
-  .nav-lang:hover { color: var(--white); border-color: rgba(255,255,255,0.4); opacity: 1; }
+  .cg-form { max-width: 440px; margin: 2.5rem auto 0; text-align: left; }
+  .cg-form-divider { display:flex; align-items:center; gap:14px; max-width:440px; margin:2.25rem auto; color:var(--gray2); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; }
+  .cg-form-divider::before, .cg-form-divider::after { content:""; flex:1; height:0.5px; background:var(--border); }
+  .cg-form input, .cg-form textarea {
+    width:100%; background:var(--bg2); border:0.5px solid var(--gray2); border-radius:8px;
+    padding:13px 15px; color:var(--white); font-family:inherit; font-size:14px; margin-bottom:12px;
+    transition:border-color 0.2s; box-sizing:border-box;
+  }
+  .cg-form input:focus, .cg-form textarea:focus { outline:none; border-color:var(--blue); }
+  .cg-form input::placeholder, .cg-form textarea::placeholder { color:var(--gray2); }
+  .cg-form textarea { resize:vertical; min-height:80px; }
+  .cg-form button {
+    width:100%; background:transparent; border:0.5px solid var(--gray); color:var(--white);
+    font-family:'Syne',sans-serif; font-size:15px; font-weight:600; padding:14px; border-radius:8px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .cg-form button:hover { background:var(--white); color:var(--bg); border-color:var(--white); }
+  .cg-form-status { font-size:13px; text-align:center; margin-top:12px; min-height:18px; }
+  .nav-lang:hover { color: var(--white); border-color: rgba(255,255,255,0.45); opacity: 1; }
   @media (max-width: 640px) {
     .nav-left .nav-lang { display: none; }
   }
@@ -716,6 +734,16 @@
     <h2>Ready to talk about your project?</h2>
     <p class="section-sub" style="max-width: 480px; margin: 0 auto 2.5rem;">Tell us what you're building. We'll take it from there. No commitments, no generic quotes. Just a real conversation that actually goes somewhere.</p>
     <a href="#" class="btn-primary" onclick="return openTidio();" style="font-size: 16px; padding: 16px 36px;">Start your project</a>
+
+    <div class="cg-form-divider">or</div>
+
+    <div class="cg-form">
+      <input type="text" id="cgfName" placeholder="Your name" autocomplete="name">
+      <input type="email" id="cgfEmail" placeholder="Your email" autocomplete="email">
+      <textarea id="cgfProject" placeholder="Tell us briefly about your project"></textarea>
+      <button type="button" onclick="cgSubmitForm()">Send</button>
+      <div class="cg-form-status" id="cgfStatus"></div>
+    </div>
   </section>
 </div>
 
@@ -1282,6 +1310,36 @@ function openTidio() {
   overlay.classList.add('open');
   if (cgHistory.length === 0) cgInit();
   return false;
+}
+
+async function cgSubmitForm() {
+  const name = document.getElementById('cgfName').value.trim();
+  const email = document.getElementById('cgfEmail').value.trim();
+  const project = document.getElementById('cgfProject').value.trim();
+  const status = document.getElementById('cgfStatus');
+  const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  if (!name || !project || !emailOk) {
+    status.style.color = '#E0564B';
+    status.textContent = 'Please fill all fields with a valid email.';
+    return;
+  }
+  status.style.color = 'var(--gray)';
+  status.textContent = 'Sending...';
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'lead_form', name, email, project, lang: 'en' })
+    });
+    status.style.color = '#3F9E7C';
+    status.textContent = 'Received. We will be in touch soon.';
+    document.getElementById('cgfName').value = '';
+    document.getElementById('cgfEmail').value = '';
+    document.getElementById('cgfProject').value = '';
+  } catch(e) {
+    status.style.color = '#E0564B';
+    status.textContent = 'Something went wrong. Email us at hello@cimminoglobal.com';
+  }
 }
 
 async function cgInit() {
