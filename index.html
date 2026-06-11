@@ -127,7 +127,8 @@
     transition: all 0.2s;
     opacity: 0.9;
   }
-  .cg-map-wrap { width:100%; border-radius:12px; overflow:hidden; border:0.5px solid var(--border); background:var(--bg); }
+  .cg-map-wrap { width:100%; border:none; background:transparent; padding:1rem 0; position:relative; }
+  .cg-map-wrap::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse 60% 70% at 50% 50%, rgba(30,111,217,0.07), transparent 70%); pointer-events:none; }
   .cg-map-wrap svg { display:block; width:100%; height:auto; }
   .cg-form-toggle {
     display:block; width:fit-content; margin:2.75rem auto 0; color:var(--gray2); font-size:13px;
