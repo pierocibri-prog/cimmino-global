@@ -127,7 +127,9 @@
     transition: all 0.2s;
     opacity: 0.9;
   }
-  .cg-map-wrap { width:100%; border:none; background:transparent; padding:1rem 0; position:relative; }
+  .cg-map-wrap { width:100%; border:none; background:transparent; padding:1.5rem 0; position:relative;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); }
   .cg-map-wrap::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse 60% 70% at 50% 50%, rgba(30,111,217,0.07), transparent 70%); pointer-events:none; }
   .cg-map-wrap svg { display:block; width:100%; height:auto; }
   .cg-form-toggle {
