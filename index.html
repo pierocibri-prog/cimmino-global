@@ -512,7 +512,7 @@
     <a href="/es" class="nav-lang">ES</a>
   </div>
   <div class="nav-links">
-    <a href="#problem">The Real Cost</a>
+    <a href="#real-cost">The Real Cost</a>
     <a href="#process">How It Works</a>
     <a href="#story">Our Story</a>
     <a href="#pricing">Get Started</a>
@@ -525,7 +525,7 @@
 
 <!-- MOBILE NAV -->
 <div class="nav-mobile" id="nav-mobile">
-  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">The Real Cost</a>
+  <a href="#real-cost" onclick="document.getElementById('nav-mobile').classList.remove('open')">The Real Cost</a>
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">How It Works</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Our Story</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile').classList.remove('open')">Get Started</a>
@@ -547,7 +547,7 @@
 </div>
 
 <!-- PROBLEM -->
-<div id="problem" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
+<div id="real-cost" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
   <section>
     <div class="section-eyebrow">The Real Cost</div>
     <h2>The mistakes that really cost you aren't the ones you think.</h2>
@@ -703,8 +703,7 @@
 <section id="story">
   <div class="section-eyebrow">Our Story</div>
   <h2>Why we built this.</h2>
-  <div class="story-layout">
-  <div class="story-content">
+  <div style="max-width: 640px;">
     <p style="font-size: 19px; line-height: 1.75; color: var(--white); margin-bottom: 1.75rem; font-weight: 300; letter-spacing: -0.01em;">I'll be honest with you. The first time I sourced a product from China I had no idea what I was walking into.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">I didn't know that most "manufacturers" online are actually middlemen charging you their margin on top of the factory price. I didn't know that getting the certifications wrong means your product gets blocked at customs, after you've already paid for production. I didn't know that a wrong packaging size can quietly eat your shipping budget and your storage costs for months.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">I learned all of this the hard way. With my own money. On my own time.</p>
@@ -712,10 +711,6 @@
     <p style="font-size: 16px; line-height: 1.85; color: var(--white); margin-bottom: 2.5rem; font-weight: 400;">And let me tell you something. The day I held my product in my hands for the first time, the thing that had only existed in my head, now real, physical, tangible, I felt something I've never forgotten. That feeling is what I want you to experience too.</p>
     <div style="width: 40px; height: 1px; background: rgba(30,111,217,0.4); margin-bottom: 1.5rem;"></div>
     <img src="/signature.png" alt="Piero Cimmino signature" style="height: 72px; opacity: 0.8; display: block;">
-  </div>
-  <div class="story-visual">
-    <img src="/robot-story.png" alt="">
-  </div>
   </div>
 </section>
 
@@ -1040,14 +1035,6 @@
 }
 
   
-  .story-layout { display:flex; gap:5rem; align-items:flex-start; }
-  .story-content { flex:1; max-width:640px; }
-  .story-visual { flex:0 0 280px; opacity:.12; pointer-events:none; }
-  .story-visual img { width:100%; display:block; }
-  @media (max-width:900px) {
-    .story-layout { display:block; }
-    .story-visual { display:none; }
-  }
   </style>
 
 <!-- Chat overlay -->
