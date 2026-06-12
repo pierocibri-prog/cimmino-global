@@ -512,7 +512,7 @@
     <a href="/" class="nav-lang">EN</a>
   </div>
   <div class="nav-links">
-    <a href="#problem">El Costo Real</a>
+    <a href="#real-cost">El Costo Real</a>
     <a href="#process">Cómo Funciona</a>
     <a href="#story">Nuestra Historia</a>
     <a href="#pricing">Comenzar</a>
@@ -525,7 +525,7 @@
 
 <!-- MOBILE NAV -->
 <div class="nav-mobile" id="nav-mobile">
-  <a href="#problem" onclick="document.getElementById('nav-mobile').classList.remove('open')">El Costo Real</a>
+  <a href="#real-cost" onclick="document.getElementById('nav-mobile').classList.remove('open')">El Costo Real</a>
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">Cómo Funciona</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Nuestra Historia</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile').classList.remove('open')">Comenzar</a>
@@ -547,7 +547,7 @@
 </div>
 
 <!-- PROBLEM -->
-<div id="problem" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
+<div id="real-cost" style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
   <section>
     <div class="section-eyebrow">El Costo Real</div>
     <h2>Los errores que realmente cuestan no son los que crees.</h2>
@@ -703,8 +703,7 @@
 <section id="story">
   <div class="section-eyebrow">Nuestra Historia</div>
   <h2>Por qué construimos esto.</h2>
-  <div class="story-layout">
-  <div class="story-content">
+  <div style="max-width: 640px;">
     <p style="font-size: 19px; line-height: 1.75; color: var(--white); margin-bottom: 1.75rem; font-weight: 300; letter-spacing: -0.01em;">Voy a ser honesto contigo. La primera vez que fui a fabricar un producto en China, no tenía idea en lo que me estaba metiendo.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">No sabía que la mayoría de los "fabricantes" en internet son intermediarios que te cobran su margen encima del precio de fábrica. No sabía que equivocarte con las certificaciones significa que tu producto queda bloqueado en aduana, después de que ya pagaste la producción. No sabía que un tamaño de empaque incorrecto puede comerse silenciosamente tu presupuesto de envío y tus costos de almacenaje durante meses.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">Todo esto lo aprendí de la manera difícil. Con mi propio dinero. A mi propio costo.</p>
@@ -712,10 +711,6 @@
     <p style="font-size: 16px; line-height: 1.85; color: var(--white); margin-bottom: 2.5rem; font-weight: 400;">Y déjame decirte algo. El día que tuve mi producto en las manos por primera vez, eso que solo existía en mi cabeza, ahora real, físico, tangible, sentí algo que no se me ha olvidado. Esa sensación es la que quiero que tú también vivas.</p>
     <div style="width: 40px; height: 1px; background: rgba(30,111,217,0.4); margin-bottom: 1.5rem;"></div>
     <img src="/signature.png" alt="Piero Cimmino signature" style="height: 72px; opacity: 0.8; display: block;">
-  </div>
-  <div class="story-visual">
-    <img src="/robot-story.png" alt="">
-  </div>
   </div>
 </section>
 
@@ -1040,14 +1035,6 @@
 }
 
   
-  .story-layout { display:flex; gap:5rem; align-items:flex-start; }
-  .story-content { flex:1; max-width:640px; }
-  .story-visual { flex:0 0 280px; opacity:.12; pointer-events:none; }
-  .story-visual img { width:100%; display:block; }
-  @media (max-width:900px) {
-    .story-layout { display:block; }
-    .story-visual { display:none; }
-  }
   </style>
 
 <!-- Chat overlay -->
