@@ -607,6 +607,172 @@
       <p style="font-family: 'Syne', sans-serif; font-size: clamp(22px, 3.5vw, 38px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; color: var(--gray); max-width: 720px;">The most expensive manufacturing mistake<br><span style="color: var(--white);">is discovering it too late.</span></p>
     </div>
   </section>
+
+<script>
+
+(function(){
+  // Hero technical layer: coordinates, nodes, grid fragments, annotations
+  // Opacity 2-5%, very slow animation, asymmetric placement
+  const hero = document.querySelector('.hero');
+  if(!hero) return;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('id','heroTechLayer');
+  svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;';
+  hero.insertBefore(svg, hero.querySelector('canvas').nextSibling);
+
+  const W = ()=>hero.offsetWidth||window.innerWidth;
+  const H = ()=>hero.offsetHeight||window.innerHeight;
+  const INK='#4A90D9', DIM='#2E6BB0', FAINT='#1E3A5F';
+  const mono='font-family:ui-monospace,SFMono-Regular,Courier,monospace';
+
+  function el(tag,attrs,style){
+    const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(style) e.style.cssText=style;
+    return e;
+  }
+
+  function makeLine(x1,y1,x2,y2,op,color,w){
+    color=color||DIM; w=w||0.6; op=op||0.04;
+    return el('line',{x1,y1,x2,y2,stroke:color,'stroke-width':w,opacity:op,'stroke-linecap':'round'});
+  }
+  function makeCircle(cx,cy,r,op,filled){
+    const c=el('circle',{cx,cy,r,stroke:INK,'stroke-width':0.8,
+      fill:filled?INK:'none',opacity:op||0.04});
+    return c;
+  }
+  function makeText(x,y,t,op,size){
+    const e=el('text',{x,y,'font-size':size||8,fill:DIM,opacity:op||0.03});
+    e.style.cssText=mono; e.textContent=t; return e;
+  }
+
+  // Slow pulse animation on a node
+  function pulseNode(cx,cy,r,delay,dur){
+    const g=el('g'); const c=makeCircle(cx,cy,r,0.05,true);
+    const anim=el('animate',{
+      attributeName:'opacity',values:'0.02;0.06;0.02',
+      dur:(dur||8)+'s',begin:(delay||0)+'s',repeatCount:'indefinite'});
+    c.appendChild(anim);
+    // outer ring slow pulse
+    const ring=makeCircle(cx,cy,r*3,0.02,false);
+    const anim2=el('animate',{
+      attributeName:'r',values:`${r*2};${r*4};${r*2}`,
+      dur:(dur||8)+'s',begin:(delay||0)+'s',repeatCount:'indefinite'});
+    const anim3=el('animate',{
+      attributeName:'opacity',values:'0.03;0.01;0.03',
+      dur:(dur||8)+'s',begin:(delay||0)+'s',repeatCount:'indefinite'});
+    ring.appendChild(anim2); ring.appendChild(anim3);
+    g.appendChild(ring); g.appendChild(c); return g;
+  }
+
+  // Slow line draw-in
+  function drawLine(x1,y1,x2,y2,delay,dur,op,color,w){
+    const L=Math.hypot(x2-x1,y2-y1)+1;
+    const line=makeLine(x1,y1,x2,y2,op||0.04,color||DIM,w||0.6);
+    line.setAttribute('stroke-dasharray',L);
+    line.setAttribute('stroke-dashoffset',L);
+    const anim=el('animate',{
+      attributeName:'stroke-dashoffset',
+      values:`${L};${L};0;0;${L}`,
+      keyTimes:`0;${(delay/60).toFixed(3)};${Math.min((delay+dur)/60,0.92).toFixed(3)};0.94;1`,
+      dur:'60s',repeatCount:'indefinite'});
+    line.appendChild(anim);
+    const anim2=el('animate',{
+      attributeName:'opacity',
+      values:`0;0;${op||0.04};${op||0.04};0`,
+      keyTimes:`0;${(delay/60).toFixed(3)};${Math.min((delay+dur)/60+0.01,0.93).toFixed(3)};0.95;1`,
+      dur:'60s',repeatCount:'indefinite'});
+    line.appendChild(anim2);
+    return line;
+  }
+
+  function fadeText(x,y,t,delay,dur,op,size){
+    const e=makeText(x,y,t,0,size);
+    const b=(delay/60).toFixed(3);
+    const m=Math.min((delay+dur)/60,0.93).toFixed(3);
+    const anim=el('animate',{
+      attributeName:'opacity',values:`0;0;${op||0.03};${op||0.03};0`,
+      keyTimes:`0;${b};${m};0.95;1`,dur:'60s',repeatCount:'indefinite'});
+    e.appendChild(anim); return e;
+  }
+
+  function build(){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    const w=W(), h=H();
+
+    // -- FAINT GRID FRAGMENTS (not full grid, asymmetric patches) --
+    // Top-right cluster
+    for(let x=w*0.58;x<w*0.82;x+=38)
+      svg.appendChild(makeLine(x,0,x,h*0.35,0.025,FAINT,0.4));
+    for(let y=h*0.08;y<h*0.38;y+=38)
+      svg.appendChild(makeLine(w*0.58,y,w*0.82,y,0.025,FAINT,0.4));
+
+    // Bottom-left fragment
+    for(let x=w*0.04;x<w*0.22;x+=42)
+      svg.appendChild(makeLine(x,h*0.62,x,h,0.02,FAINT,0.35));
+    for(let y=h*0.65;y<h;y+=42)
+      svg.appendChild(makeLine(w*0.04,y,w*0.22,y,0.02,FAINT,0.35));
+
+    // -- STATIC ANNOTATIONS (very faint, scattered) --
+    const anns=[
+      [w*0.61,h*0.12,'x: 614.0'],  [w*0.61,h*0.18,'y: 182.3'],
+      [w*0.78,h*0.22,'REF 01'],     [w*0.82,h*0.28,'±0.2 mm'],
+      [w*0.06,h*0.70,'node 004'],   [w*0.06,h*0.76,'z: 000.0'],
+      [w*0.14,h*0.82,'DRAFT'],      [w*0.42,h*0.88,'align →'],
+      [w*0.55,h*0.82,'R: 12.5'],    [w*0.88,h*0.72,'tol. A'],
+      [w*0.90,h*0.78,'confirm'],    [w*0.25,h*0.15,'orig.'],
+    ];
+    anns.forEach(([x,y,t])=>svg.appendChild(makeText(x,y,t,0.03,8)));
+
+    // -- STATIC CROSSHAIRS (off-center) --
+    const crosses=[
+      [w*0.72,h*0.18,10], [w*0.09,h*0.78,8],
+      [w*0.88,h*0.55,9],  [w*0.38,h*0.12,7],
+    ];
+    crosses.forEach(([cx,cy,s])=>{
+      svg.appendChild(makeLine(cx-s,cy,cx+s,cy,0.04,DIM,0.6));
+      svg.appendChild(makeLine(cx,cy-s,cx,cy+s,0.04,DIM,0.6));
+    });
+
+    // -- STATIC DIM LINES --
+    svg.appendChild(makeLine(w*0.60,h*0.42,w*0.78,h*0.42,0.035,DIM,0.6));
+    svg.appendChild(makeLine(w*0.60,h*0.40,w*0.60,h*0.44,0.035,DIM,0.6));
+    svg.appendChild(makeLine(w*0.78,h*0.40,w*0.78,h*0.44,0.035,DIM,0.6));
+    svg.appendChild(makeText(w*0.67,h*0.39,'180.0 mm',0.03,7));
+
+    svg.appendChild(makeLine(w*0.08,h*0.62,w*0.08,h*0.85,0.03,DIM,0.6));
+    svg.appendChild(makeLine(w*0.06,h*0.62,w*0.10,h*0.62,0.03,DIM,0.6));
+    svg.appendChild(makeLine(w*0.06,h*0.85,w*0.10,h*0.85,0.03,DIM,0.6));
+    svg.appendChild(makeText(w*0.09,h*0.74,'230.0',0.025,7));
+
+    // -- PULSING NODES (scattered, different timing) --
+    const nodes=[
+      [w*0.72,h*0.18,3,0,11],[w*0.09,h*0.78,2.5,3,9],
+      [w*0.88,h*0.55,3,6,13],[w*0.38,h*0.12,2,9,10],
+      [w*0.55,h*0.68,2.5,2,14],[w*0.18,h*0.45,2,5,12],
+    ];
+    nodes.forEach(([cx,cy,r,delay,dur])=>svg.appendChild(pulseNode(cx,cy,r,delay,dur)));
+
+    // -- SLOW ANIMATED LINES (60s cycle, very low opacity) --
+    svg.appendChild(drawLine(w*0.58,h*0.08,w*0.82,h*0.08, 0,18,0.04,FAINT,0.5));
+    svg.appendChild(drawLine(w*0.82,h*0.08,w*0.82,h*0.38, 8,16,0.04,FAINT,0.5));
+    svg.appendChild(drawLine(w*0.62,h*0.55,w*0.88,h*0.55, 22,20,0.035,DIM,0.5));
+    svg.appendChild(drawLine(w*0.05,h*0.92,w*0.32,h*0.92, 35,18,0.03,FAINT,0.4));
+    svg.appendChild(drawLine(w*0.32,h*0.92,w*0.32,h*0.68, 42,14,0.03,FAINT,0.4));
+
+    // -- SLOW ANIMATED TEXT REVEALS --
+    svg.appendChild(fadeText(w*0.64,h*0.51,'SECTION A—A',15,20,0.03,8));
+    svg.appendChild(fadeText(w*0.84,h*0.62,'→ pending',28,16,0.025,7));
+    svg.appendChild(fadeText(w*0.20,h*0.93,'ref. point 002',40,15,0.025,7));
+  }
+
+  build();
+  window.addEventListener('resize',()=>{ clearTimeout(window._htResize); window._htResize=setTimeout(build,200); });
+})();
+
+</script>
+
 </div>
 
 <!-- SOLVE -->
