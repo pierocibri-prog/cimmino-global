@@ -703,8 +703,8 @@
 <section id="story">
   <div class="section-eyebrow">Nuestra Historia</div>
   <h2>Por qué construimos esto.</h2>
-  <div style="display:flex; flex-wrap:wrap; gap:3rem; align-items:flex-start;">
-  <div style="flex:1 1 520px; max-width:640px;">
+  <div class="story-layout">
+  <div class="story-content">
     <p style="font-size: 19px; line-height: 1.75; color: var(--white); margin-bottom: 1.75rem; font-weight: 300; letter-spacing: -0.01em;">Voy a ser honesto contigo. La primera vez que fui a fabricar un producto en China, no tenía idea en lo que me estaba metiendo.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">No sabía que la mayoría de los "fabricantes" en internet son intermediarios que te cobran su margen encima del precio de fábrica. No sabía que equivocarte con las certificaciones significa que tu producto queda bloqueado en aduana, después de que ya pagaste la producción. No sabía que un tamaño de empaque incorrecto puede comerse silenciosamente tu presupuesto de envío y tus costos de almacenaje durante meses.</p>
     <p style="font-size: 16px; line-height: 1.85; color: var(--gray); margin-bottom: 1.5rem;">Todo esto lo aprendí de la manera difícil. Con mi propio dinero. A mi propio costo.</p>
@@ -713,9 +713,8 @@
     <div style="width: 40px; height: 1px; background: rgba(30,111,217,0.4); margin-bottom: 1.5rem;"></div>
     <img src="/signature.png" alt="Piero Cimmino signature" style="height: 72px; opacity: 0.8; display: block;">
   </div>
-  <div style="flex:0 1 300px; min-width:240px; margin:0 auto; position:relative;">
-    <div style="position:absolute; inset:-3px; background:radial-gradient(ellipse 70% 55% at 50% 40%, rgba(30,111,217,0.16), transparent 70%); filter:blur(22px); pointer-events:none;"></div>
-    <img src="/idea-reality-game-vertical.jpg" alt="Del boceto al juego terminado: idea, dise&ntilde;o, ingenier&iacute;a y producto final" loading="lazy" style="position:relative; width:100%; height:auto; display:block; border-radius:14px; border:0.5px solid var(--border);" />
+  <div class="story-visual">
+    <img src="/robot-story.png" alt="">
   </div>
   </div>
 </section>
@@ -1039,7 +1038,16 @@
   color: rgba(255,255,255,0.2);
   padding: 4px 0 8px;
 }
-</style>
+
+  .story-layout { display:flex; gap:5rem; align-items:flex-start; }
+  .story-content { flex:1; max-width:640px; }
+  .story-visual { flex:0 0 280px; opacity:.12; pointer-events:none; }
+  .story-visual img { width:100%; display:block; }
+  @media (max-width:900px) {
+    .story-layout { display:block; }
+    .story-visual { display:none; }
+  }
+  </style>
 
 <!-- Chat overlay -->
 <div class="cg-overlay" id="cgOverlay">
