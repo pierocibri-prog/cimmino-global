@@ -342,20 +342,22 @@
     transition: background 0.3s;
     position: relative;
     overflow: hidden;
+    isolation: isolate;
   }
   .step-card:hover { background: var(--bg3); }
   .step-card-bg-num {
     position: absolute;
-    top: -8px;
-    right: 8px;
+    bottom: 2px;
+    right: 14px;
     font-family: 'Syne', sans-serif;
-    font-size: 72px;
+    font-size: 66px;
     font-weight: 800;
-    color: rgba(30,111,217,0.10);
+    color: rgba(30,111,217,0.09);
     line-height: 1;
     pointer-events: none;
     user-select: none;
     letter-spacing: -0.04em;
+    z-index: -1;
   }
   .step-num-big {
     font-family: 'Syne', sans-serif;
