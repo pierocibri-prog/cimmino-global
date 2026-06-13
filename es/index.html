@@ -298,32 +298,46 @@
     margin-bottom: 3rem;
   }
 
-  /* PROBLEMS */
-  .problems-grid { display: grid; gap: 12px; }
+  /* PROBLEMS — editorial ledger */
+  .problems-grid { display: flex; flex-direction: column; max-width: 1040px; margin-top: 0.5rem; }
   .problem-card {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
     display: grid;
-    grid-template-columns: 48px 1fr;
-    gap: 1rem;
-    transition: border-color 0.3s;
+    grid-template-columns: 56px minmax(220px, 320px) 1fr;
+    column-gap: 2.5rem;
+    align-items: start;
+    padding: 1.9rem 0.75rem 1.9rem 0.25rem;
+    border-top: 1px solid var(--border);
+    position: relative;
+    transition: background 0.35s ease;
   }
-  .problem-card:hover { border-color: rgba(30,111,217,0.3); }
+  .problem-card:last-child { border-bottom: 1px solid var(--border); }
+  .problem-card::before {
+    content: ""; position: absolute; left: 0; top: -1px; bottom: -1px; width: 2px;
+    background: var(--blue); transform: scaleY(0); transform-origin: top;
+    transition: transform 0.35s ease; opacity: 0.8;
+  }
+  .problem-card:hover { background: rgba(74,144,226,0.025); }
+  .problem-card:hover::before { transform: scaleY(1); }
   .problem-num {
     font-family: 'Syne', sans-serif;
-    font-size: 11px; font-weight: 700;
-    color: var(--blue);
-    letter-spacing: 0.08em;
-    padding-top: 3px;
+    font-size: 30px; font-weight: 700;
+    color: var(--gray2);
+    letter-spacing: -0.02em; line-height: 1.05;
+    transition: color 0.35s ease;
   }
+  .problem-card:hover .problem-num { color: var(--blue-light); }
   .problem-title {
     font-family: 'Syne', sans-serif;
-    font-size: 16px; font-weight: 600;
-    margin-bottom: 6px;
+    font-size: 17px; font-weight: 600; color: var(--white);
+    line-height: 1.35; letter-spacing: -0.01em;
   }
-  .problem-desc { font-size: 13px; color: var(--gray); line-height: 1.6; max-width: 600px; text-wrap: balance; }
+  .problem-desc { font-size: 14px; color: var(--gray); line-height: 1.7; max-width: 540px; text-wrap: balance; }
+  @media (max-width: 860px) {
+    .problem-card { grid-template-columns: 40px 1fr; column-gap: 1.25rem; row-gap: 0.55rem; padding: 1.5rem 0; }
+    .problem-num { grid-column: 1; grid-row: 1 / span 2; font-size: 22px; }
+    .problem-title { grid-column: 2; grid-row: 1; }
+    .problem-desc { grid-column: 2; grid-row: 2; }
+  }
 
   /* STEPS */
   .steps-grid {
@@ -586,39 +600,29 @@
     <div class="problems-grid">
       <div class="problem-card">
         <div class="problem-num">01</div>
-        <div>
           <div class="problem-title">Elegir el proveedor equivocado</div>
           <div class="problem-desc">Desencadena todo lo demás: retrasos, defectos, devoluciones, clientes perdidos. Un proveedor 15% más caro rara vez destruye un negocio. El incorrecto sí.</div>
         </div>
-      </div>
       <div class="problem-card">
         <div class="problem-num">02</div>
-        <div>
           <div class="problem-title">Descubrir los problemas cuando la producción ya empezó</div>
           <div class="problem-desc">En ese punto ya no negocias. Ya dependes de ellos. Ya enviaste el dinero. Ya tienes fechas comprometidas y clientes esperando. No hay salida fácil.</div>
         </div>
-      </div>
       <div class="problem-card">
         <div class="problem-num">03</div>
-        <div>
           <div class="problem-title">Diseñar un producto que no escala</div>
           <div class="problem-desc">Un prototipo funciona. 100 unidades funcionan. 10,000 son un desastre. Pasa más de lo que crees, y nadie te avisa hasta que ya es demasiado caro corregirlo.</div>
         </div>
-      </div>
       <div class="problem-card">
         <div class="problem-num">04</div>
-        <div>
           <div class="problem-title">Creer que estás hablando con la fábrica cuando no es así</div>
           <div class="problem-desc">No porque el intermediario sea deshonesto. Sino porque cuando hay un problema, descubres que nunca tuviste acceso a quien realmente toma las decisiones.</div>
         </div>
-      </div>
       <div class="problem-card">
         <div class="problem-num">05</div>
-        <div>
           <div class="problem-title">Llegar tarde al mercado</div>
           <div class="problem-desc">Muchas empresas pierden más dinero por retrasos que por sobrecostos. Perder Navidad o un Prime Day cuesta mucho más que ahorrar un 5% en fabricación.</div>
         </div>
-      </div>
     </div>
     <div style="margin-top: 3.5rem;">
       <p style="font-family: 'Syne', sans-serif; font-size: clamp(22px, 3.5vw, 38px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; color: var(--gray); max-width: 720px;">El error más caro en manufactura<br><span style="color: var(--white);">es descubrirlo demasiado tarde.</span></p>
