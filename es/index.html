@@ -194,6 +194,32 @@
     position: absolute; inset: 0;
     pointer-events: none;
   }
+  .hero-cube{
+    position:absolute; right:7%; top:50%; transform:translateY(-50%);
+    width:320px; height:320px; perspective:1500px;
+    pointer-events:none; z-index:0; opacity:0.40;
+  }
+  .hc-orbit{ width:100%; height:100%; position:relative; transform-style:preserve-3d;
+    animation:hcOrbit 34s linear infinite; }
+  @keyframes hcOrbit{
+    0%{ transform:rotateX(-26deg) rotateY(18deg); }
+    100%{ transform:rotateX(-26deg) rotateY(378deg); }
+  }
+  .hc-cube{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; }
+  .hc-pivot{ position:absolute; left:0; top:0; transform-style:preserve-3d;
+    transition:transform .7s cubic-bezier(.45,.05,.25,1); }
+  .hc-cubie{ position:absolute; transform-style:preserve-3d; }
+  .hc-face{ position:absolute; left:0; top:0;
+    background:rgba(74,144,226,0.04);
+    border:1px solid rgba(74,144,226,0.5);
+    box-shadow: inset 0 0 0 1px rgba(91,155,213,0.08); }
+  @media (max-width:980px){
+    .hero-cube{ right:-3%; width:260px; height:260px; opacity:0.24; }
+  }
+  @media (max-width:640px){
+    .hero-cube{ top:auto; bottom:8%; right:50%; transform:translateX(50%);
+      width:230px; height:230px; opacity:0.16; }
+  }
   .hero-tag {
     white-space: nowrap;
     display: inline-flex; align-items: center; gap: 8px;
@@ -582,6 +608,7 @@
 <!-- HERO -->
 <div class="hero">
   <canvas id="heroAurora" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+  <div class="hero-cube" id="heroCube" aria-hidden="true"><div class="hc-orbit"><div class="hc-cube"></div></div></div>
   <div style="position:relative;z-index:1;">
     <h1>Fabricar en China<br>sin sorpresas.<br><em>Ese es nuestro trabajo.</em></h1>
     <p class="hero-sub">Nosotros lo vivimos: los proveedores equivocados, los costos ocultos, los errores que nadie te advierte. Ahora ayudamos a otros a no repetirlos.</p>
@@ -669,97 +696,68 @@
     while(svg.firstChild) svg.removeChild(svg.firstChild);
     const W=hero.offsetWidth||window.innerWidth;
     const H=hero.offsetHeight||window.innerHeight;
-    const HOT='#6FB0FF';
-    const COS=Math.cos(Math.PI/6), SIN=Math.sin(Math.PI/6);
-    const s=Math.max(7, Math.min(H*0.021, W*0.0155));
-    const ox=W*0.73, oy=H*0.52;
-    function iso(x,y,z){ return [ (x-y)*COS*s+ox, ((x+y)*SIN - z)*s+oy ]; }
-    function seg(a,b,op,color,w,dash){
-      const e=line(a[0],a[1],b[0],b[1],op,color,w);
-      if(dash) e.setAttribute('stroke-dasharray',dash);
-      svg.appendChild(e); return e;
-    }
-    function poly(pts,sop,fop){
-      const p=el('polygon',{points:pts.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' '),
-        fill:INK,'fill-opacity':fop,stroke:INK,'stroke-width':1.2,opacity:sop,'stroke-linejoin':'round'});
-      svg.appendChild(p);
-    }
-    function ringNode(cx,cy,r){
-      svg.appendChild(el('circle',{cx,cy,r,fill:HOT,opacity:0.7}));
-      const ring=el('circle',{cx,cy,r:r,stroke:HOT,'stroke-width':1,fill:'none',opacity:0.5});
-      ring.appendChild(el('animate',{attributeName:'r',values:r+';'+(r*4)+';'+r,dur:'7s',repeatCount:'indefinite'}));
-      ring.appendChild(el('animate',{attributeName:'opacity',values:'0.5;0;0.5',dur:'7s',repeatCount:'indefinite'}));
-      svg.appendChild(ring);
-    }
-
-    // faint iso ground grid (right)
-    for(let g=-6; g<=8; g+=2){
-      seg(iso(g,-6,0),iso(g,8,0),0.16,FAINT,0.5);
-      seg(iso(-6,g,0),iso(8,g,0),0.16,FAINT,0.5);
-    }
-
-    // construction module (faced) + ghost wireframe above
-    function frame(x,y,z,w,d,h,op,faces){
-      const c={}, map={'000':[0,0,0],'100':[w,0,0],'110':[w,d,0],'010':[0,d,0],'001':[0,0,h],'101':[w,0,h],'111':[w,d,h],'011':[0,d,h]};
-      for(const k in map){ const m=map[k]; c[k]=iso(x+m[0],y+m[1],z+m[2]); }
-      if(faces){
-        poly([c['001'],c['101'],c['111'],c['011']],op,op*0.12);
-        poly([c['100'],c['110'],c['111'],c['101']],op,op*0.07);
-        poly([c['000'],c['100'],c['101'],c['001']],op,op*0.05);
-      } else {
-        [['000','100'],['100','110'],['110','010'],['010','000'],['001','101'],['101','111'],['111','011'],['011','001'],['000','001'],['100','101'],['110','111'],['010','011']]
-          .forEach(e=>seg(c[e[0]],c[e[1]],op,DIM,1.0,'3 2'));
-      }
-      return c;
-    }
-    frame(0,0,0,6,6,5,0.46,true);
-    frame(0.6,0.6,6.4,6,6,5,0.30,false);
-
-    // top circular feature
-    const ctop=iso(3,3,5);
-    svg.appendChild(circle(ctop[0],ctop[1],1.8*s,0.38));
-    svg.appendChild(circle(ctop[0],ctop[1],1.0*s,0.30));
-    ringNode(ctop[0],ctop[1],0.22*s+1);
-
-    // dimension line (width) under module
-    const d0=iso(0,0,-1.4), d1=iso(6,0,-1.4);
-    seg(d0,d1,0.42,DIM,0.8);
-    seg([d0[0],d0[1]-4],[d0[0],d0[1]+4],0.42,DIM,0.8);
-    seg([d1[0],d1[1]-4],[d1[0],d1[1]+4],0.42,DIM,0.8);
-    svg.appendChild(text((d0[0]+d1[0])/2-14,(d0[1]+d1[1])/2+15,'180.0',0.46,9));
-    // height dim (right)
-    const h0=iso(6,6,0), h1=iso(6,6,5);
-    seg([h0[0]+16,h0[1]],[h1[0]+16,h1[1]],0.42,DIM,0.8);
-    svg.appendChild(text(h1[0]+20,(h0[1]+h1[1])/2,'55',0.46,9));
-
-    // construction lines projecting toward the headline (left), slow draw-in
-    function drawSeg(a,b,op,color,delay){
-      const L=Math.hypot(b[0]-a[0],b[1]-a[1])+1;
-      const e=line(a[0],a[1],b[0],b[1],0,color,0.7);
-      e.setAttribute('stroke-dasharray',L);
-      e.setAttribute('stroke-dashoffset',L);
-      const bk=Math.max(0,(delay-4)/60).toFixed(3), mk=Math.min((delay+16)/60,0.9).toFixed(3);
-      e.appendChild(el('animate',{attributeName:'stroke-dashoffset',values:L+';'+L+';0;0;'+L,keyTimes:'0;'+bk+';'+mk+';0.94;1',dur:'60s',repeatCount:'indefinite'}));
-      e.appendChild(el('animate',{attributeName:'opacity',values:'0;0;'+op+';'+op+';0',keyTimes:'0;'+bk+';'+mk+';0.95;1',dur:'60s',repeatCount:'indefinite'}));
-      svg.appendChild(e);
-    }
-    seg(iso(0,3,2.5),[W*0.47,H*0.48],0.18,FAINT,0.7,'7 5');
-    drawSeg(iso(0,0,0),[W*0.50,H*0.66],0.16,FAINT,10);
-
-    // scattered crosshairs (asymmetric)
-    cross(W*0.55,H*0.27,9,0.28);
-    cross(W*0.90,H*0.82,8,0.24);
-    cross(W*0.64,H*0.84,7,0.20);
-
-    // annotation clusters
-    [[W*0.81,H*0.27,'REF 01'],[W*0.81,H*0.31,'\u00b10.2 mm'],[W*0.81,H*0.35,'DRAFT']]
-      .forEach(a=>svg.appendChild(text(a[0],a[1],a[2],0.36,8)));
-    svg.appendChild(text(W*0.55,H*0.92,'IDEA \u2192 REALITY',0.30,8));
-    svg.appendChild(text(W*0.84,H*0.92,'PROJECT 0001',0.26,8));
+    // very faint, sparse blueprint texture (the Rubik cube is the focal element)
+    cross(W*0.55,H*0.24,9,0.16);
+    cross(W*0.92,H*0.80,8,0.14);
+    cross(W*0.62,H*0.86,7,0.12);
+    svg.appendChild(text(W*0.55,H*0.93,'IDEA \u2192 REALITY',0.20,8));
+    svg.appendChild(text(W*0.84,H*0.93,'PROJECT 0001',0.16,8));
+    // faint dimension tick near the cube area
+    svg.appendChild(line(W*0.66,H*0.30,W*0.86,H*0.30,0.14,DIM,0.7));
+    svg.appendChild(text(W*0.74,H*0.285,'REF 01',0.18,8));
   }
 
   build();
   window.addEventListener('resize',()=>{ clearTimeout(window._htResize); window._htResize=setTimeout(build,200); });
+})();
+
+// --- Hero blueprint Rubik cube (subtle, slow) ---
+(function(){
+  const root=document.getElementById('heroCube'); if(!root) return;
+  const CUBE=root.querySelector('.hc-cube');
+  const N=48, GAP=5, U=N+GAP, HALF=N/2;
+  let cubies=[], busy=false;
+  function faceEl(tx){ const f=document.createElement('div'); f.className='hc-face';
+    f.style.width=N+'px'; f.style.height=N+'px'; f.style.margin=(-HALF)+'px 0 0 '+(-HALF)+'px'; f.style.transform=tx; return f; }
+  function place(o){ o.el.style.transform=`translate3d(${o.x*U-HALF}px, ${o.y*U-HALF}px, ${o.z*U-HALF}px)`; }
+  function makeCubie(x,y,z){
+    const c=document.createElement('div'); c.className='hc-cubie';
+    c.appendChild(faceEl(`rotateY(0deg) translateZ(${HALF}px)`));
+    c.appendChild(faceEl(`rotateY(180deg) translateZ(${HALF}px)`));
+    c.appendChild(faceEl(`rotateY(90deg) translateZ(${HALF}px)`));
+    c.appendChild(faceEl(`rotateY(-90deg) translateZ(${HALF}px)`));
+    c.appendChild(faceEl(`rotateX(90deg) translateZ(${HALF}px)`));
+    c.appendChild(faceEl(`rotateX(-90deg) translateZ(${HALF}px)`));
+    const o={el:c,x,y,z}; place(o); CUBE.appendChild(c); return o;
+  }
+  for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++) cubies.push(makeCubie(x,y,z));
+  function turn(axis,layer,dir){
+    if(busy) return; busy=true;
+    const pivot=document.createElement('div'); pivot.className='hc-pivot'; CUBE.appendChild(pivot);
+    const group=cubies.filter(o=>o[axis]===layer);
+    group.forEach(o=>pivot.appendChild(o.el));
+    void pivot.offsetWidth;
+    const deg=90*dir;
+    pivot.style.transform = axis==='x'?`rotateX(${deg}deg)`: axis==='y'?`rotateY(${deg}deg)`:`rotateZ(${deg}deg)`;
+    setTimeout(()=>{
+      group.forEach(o=>{
+        let {x,y,z}=o;
+        if(axis==='x'){ o.y = dir>0?-z:z; o.z = dir>0?y:-y; }
+        if(axis==='y'){ o.x = dir>0?z:-z; o.z = dir>0?-x:x; }
+        if(axis==='z'){ o.x = dir>0?-y:y; o.y = dir>0?x:-x; }
+        CUBE.appendChild(o.el); place(o);
+      });
+      pivot.remove(); busy=false;
+    },720);
+  }
+  const axes=['x','y','z'], layers=[-1,1];
+  function loop(){
+    if(!busy && !document.hidden){
+      turn(axes[Math.floor(Math.random()*3)], layers[Math.floor(Math.random()*2)], Math.random()<0.5?1:-1);
+    }
+    setTimeout(loop, 2400);
+  }
+  setTimeout(loop, 1200);
 })();
 
 </script>
