@@ -195,8 +195,8 @@
     pointer-events: none;
   }
   .hero-cube{
-    position:absolute; right:7%; top:50%; transform:translateY(-50%);
-    width:320px; height:320px; perspective:1500px;
+    position:absolute; right:6%; top:50%; transform:translateY(-50%);
+    width:400px; height:400px; perspective:1700px;
     pointer-events:none; z-index:0; opacity:0.40;
   }
   .hc-orbit{ width:100%; height:100%; position:relative; transform-style:preserve-3d;
@@ -214,11 +214,10 @@
     border:1px solid rgba(74,144,226,0.5);
     box-shadow: inset 0 0 0 1px rgba(91,155,213,0.08); }
   @media (max-width:980px){
-    .hero-cube{ right:-3%; width:260px; height:260px; opacity:0.24; }
+    .hero-cube{ right:-2%; width:320px; height:320px; opacity:0.24; }
   }
   @media (max-width:640px){
-    .hero-cube{ top:auto; bottom:8%; right:50%; transform:translateX(50%);
-      width:230px; height:230px; opacity:0.16; }
+    .hero-cube{ display:none; }
   }
   .hero-tag {
     white-space: nowrap;
@@ -715,7 +714,7 @@
 (function(){
   const root=document.getElementById('heroCube'); if(!root) return;
   const CUBE=root.querySelector('.hc-cube');
-  const N=48, GAP=5, U=N+GAP, HALF=N/2;
+  const N=58, GAP=6, U=N+GAP, HALF=N/2;
   let cubies=[], busy=false;
   function faceEl(tx){ const f=document.createElement('div'); f.className='hc-face';
     f.style.width=N+'px'; f.style.height=N+'px'; f.style.margin=(-HALF)+'px 0 0 '+(-HALF)+'px'; f.style.transform=tx; return f; }
