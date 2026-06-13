@@ -669,88 +669,93 @@
     while(svg.firstChild) svg.removeChild(svg.firstChild);
     const W=hero.offsetWidth||window.innerWidth;
     const H=hero.offsetHeight||window.innerHeight;
-
-    // GRID FRAGMENTS — two asymmetric patches, always visible
-    for(let x=W*0.60;x<W*0.80;x+=36) svg.appendChild(line(x,0,x,H*0.42,0.14,FAINT,0.5));
-    for(let y=H*0.05;y<H*0.42;y+=36) svg.appendChild(line(W*0.60,y,W*0.80,y,0.14,FAINT,0.5));
-    for(let x=W*0.05;x<W*0.20;x+=36) svg.appendChild(line(x,H*0.60,x,H,0.10,FAINT,0.5));
-    for(let y=H*0.62;y<H;y+=36) svg.appendChild(line(W*0.05,y,W*0.20,y,0.10,FAINT,0.5));
-
-    // CROSSHAIRS — always visible, scattered
-    cross(W*0.72,H*0.18,10,0.22);
-    cross(W*0.09,H*0.78,9,0.18);
-    cross(W*0.88,H*0.55,9,0.20);
-    cross(W*0.38,H*0.12,8,0.16);
-    cross(W*0.55,H*0.72,8,0.15);
-
-    // DIM LINES — always visible
-    svg.appendChild(line(W*0.60,H*0.44,W*0.78,H*0.44,0.20,DIM,0.8));
-    svg.appendChild(line(W*0.60,H*0.42,W*0.60,H*0.46,0.20,DIM,0.8));
-    svg.appendChild(line(W*0.78,H*0.42,W*0.78,H*0.46,0.20,DIM,0.8));
-    svg.appendChild(text(W*0.67,H*0.40,'180.0 mm',0.18,8));
-
-    svg.appendChild(line(W*0.07,H*0.62,W*0.07,H*0.85,0.17,DIM,0.8));
-    svg.appendChild(line(W*0.05,H*0.62,W*0.09,H*0.62,0.17,DIM,0.8));
-    svg.appendChild(line(W*0.05,H*0.85,W*0.09,H*0.85,0.17,DIM,0.8));
-    svg.appendChild(text(W*0.09,H*0.74,'230.0',0.16,8));
-
-    // ANNOTATIONS — always visible
-    [
-      [W*0.62,H*0.12,'x: 614.0'], [W*0.62,H*0.18,'y: 182.3'],
-      [W*0.79,H*0.22,'REF 01'],   [W*0.83,H*0.28,'±0.2 mm'],
-      [W*0.06,H*0.70,'node 004'], [W*0.06,H*0.76,'z: 000.0'],
-      [W*0.15,H*0.82,'DRAFT'],    [W*0.43,H*0.88,'align →'],
-      [W*0.56,H*0.82,'R: 12.5'],  [W*0.26,H*0.14,'orig.'],
-    ].forEach(([x,y,t])=>svg.appendChild(text(x,y,t,0.16,8)));
-
-    // NODES — pulsing, always have base opacity
-    const nodes=[[W*0.72,H*0.18,4],[W*0.09,H*0.78,3.5],[W*0.88,H*0.55,4],
-                 [W*0.38,H*0.12,3],[W*0.55,H*0.72,3.5],[W*0.18,H*0.45,3]];
-    nodes.forEach(([cx,cy,r])=>{
-      // static dot always visible
-      svg.appendChild(circle(cx,cy,r,0.22,true));
-      // pulsing outer ring
-      const ring=circle(cx,cy,r*3,0.08,false);
-      const a1=el('animate',{attributeName:'r',values:`${r*2};${r*4};${r*2}`,dur:'8s',repeatCount:'indefinite'});
-      const a2=el('animate',{attributeName:'opacity',values:'0.10;0.04;0.10',dur:'8s',repeatCount:'indefinite'});
-      ring.appendChild(a1); ring.appendChild(a2); svg.appendChild(ring);
-    });
-
-    // SLOW DRAW-IN LINES (always show at least partially)
-    function drawLine(x1,y1,x2,y2,delay,dur,op,color){
-      const L=Math.hypot(x2-x1,y2-y1)+1;
-      const ln=line(x1,y1,x2,y2,0,color||DIM,0.8);
-      ln.setAttribute('stroke-dasharray',L);
-      ln.setAttribute('stroke-dashoffset',L);
-      // Start already mid-way through so it's not all invisible at load
-      const b=Math.max(0,(delay-5)/60);
-      const m=Math.min((delay+dur)/60,0.92);
-      const a1=el('animate',{attributeName:'stroke-dashoffset',
-        values:`${L};${L};0;0;${L}`,
-        keyTimes:`0;${b.toFixed(3)};${m.toFixed(3)};0.94;1`,
-        dur:'60s',repeatCount:'indefinite'});
-      const a2=el('animate',{attributeName:'opacity',
-        values:`0;0;${op};${op};0`,
-        keyTimes:`0;${b.toFixed(3)};${Math.min(m+0.01,0.93).toFixed(3)};0.95;1`,
-        dur:'60s',repeatCount:'indefinite'});
-      ln.appendChild(a1); ln.appendChild(a2); return ln;
+    const HOT='#6FB0FF';
+    const COS=Math.cos(Math.PI/6), SIN=Math.sin(Math.PI/6);
+    const s=Math.max(7, Math.min(H*0.021, W*0.0155));
+    const ox=W*0.73, oy=H*0.52;
+    function iso(x,y,z){ return [ (x-y)*COS*s+ox, ((x+y)*SIN - z)*s+oy ]; }
+    function seg(a,b,op,color,w,dash){
+      const e=line(a[0],a[1],b[0],b[1],op,color,w);
+      if(dash) e.setAttribute('stroke-dasharray',dash);
+      svg.appendChild(e); return e;
     }
-    svg.appendChild(drawLine(W*0.60,H*0.06,W*0.80,H*0.06, 0,16,0.20,FAINT));
-    svg.appendChild(drawLine(W*0.80,H*0.06,W*0.80,H*0.40, 8,14,0.20,FAINT));
-    svg.appendChild(drawLine(W*0.62,H*0.56,W*0.88,H*0.56, 20,18,0.18,DIM));
-    svg.appendChild(drawLine(W*0.05,H*0.91,W*0.30,H*0.91, 32,16,0.16,FAINT));
-    svg.appendChild(drawLine(W*0.30,H*0.91,W*0.30,H*0.68, 40,12,0.16,FAINT));
-
-    // SLOW TEXT REVEALS
-    function fadeText(x,y,t,delay,dur,op){
-      const e=text(x,y,t,0,8); const b=(delay/60).toFixed(3); const m=Math.min((delay+dur)/60,0.93).toFixed(3);
-      const a=el('animate',{attributeName:'opacity',values:`0;0;${op};${op};0`,
-        keyTimes:`0;${b};${m};0.95;1`,dur:'60s',repeatCount:'indefinite'});
-      e.appendChild(a); return e;
+    function poly(pts,sop,fop){
+      const p=el('polygon',{points:pts.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' '),
+        fill:INK,'fill-opacity':fop,stroke:INK,'stroke-width':1.2,opacity:sop,'stroke-linejoin':'round'});
+      svg.appendChild(p);
     }
-    svg.appendChild(fadeText(W*0.64,H*0.52,'SECTION A—A',12,20,0.20));
-    svg.appendChild(fadeText(W*0.84,H*0.64,'→ pending',26,16,0.18));
-    svg.appendChild(fadeText(W*0.20,H*0.94,'ref. point 002',38,14,0.16));
+    function ringNode(cx,cy,r){
+      svg.appendChild(el('circle',{cx,cy,r,fill:HOT,opacity:0.7}));
+      const ring=el('circle',{cx,cy,r:r,stroke:HOT,'stroke-width':1,fill:'none',opacity:0.5});
+      ring.appendChild(el('animate',{attributeName:'r',values:r+';'+(r*4)+';'+r,dur:'7s',repeatCount:'indefinite'}));
+      ring.appendChild(el('animate',{attributeName:'opacity',values:'0.5;0;0.5',dur:'7s',repeatCount:'indefinite'}));
+      svg.appendChild(ring);
+    }
+
+    // faint iso ground grid (right)
+    for(let g=-6; g<=8; g+=2){
+      seg(iso(g,-6,0),iso(g,8,0),0.16,FAINT,0.5);
+      seg(iso(-6,g,0),iso(8,g,0),0.16,FAINT,0.5);
+    }
+
+    // construction module (faced) + ghost wireframe above
+    function frame(x,y,z,w,d,h,op,faces){
+      const c={}, map={'000':[0,0,0],'100':[w,0,0],'110':[w,d,0],'010':[0,d,0],'001':[0,0,h],'101':[w,0,h],'111':[w,d,h],'011':[0,d,h]};
+      for(const k in map){ const m=map[k]; c[k]=iso(x+m[0],y+m[1],z+m[2]); }
+      if(faces){
+        poly([c['001'],c['101'],c['111'],c['011']],op,op*0.12);
+        poly([c['100'],c['110'],c['111'],c['101']],op,op*0.07);
+        poly([c['000'],c['100'],c['101'],c['001']],op,op*0.05);
+      } else {
+        [['000','100'],['100','110'],['110','010'],['010','000'],['001','101'],['101','111'],['111','011'],['011','001'],['000','001'],['100','101'],['110','111'],['010','011']]
+          .forEach(e=>seg(c[e[0]],c[e[1]],op,DIM,1.0,'3 2'));
+      }
+      return c;
+    }
+    frame(0,0,0,6,6,5,0.46,true);
+    frame(0.6,0.6,6.4,6,6,5,0.30,false);
+
+    // top circular feature
+    const ctop=iso(3,3,5);
+    svg.appendChild(circle(ctop[0],ctop[1],1.8*s,0.38));
+    svg.appendChild(circle(ctop[0],ctop[1],1.0*s,0.30));
+    ringNode(ctop[0],ctop[1],0.22*s+1);
+
+    // dimension line (width) under module
+    const d0=iso(0,0,-1.4), d1=iso(6,0,-1.4);
+    seg(d0,d1,0.42,DIM,0.8);
+    seg([d0[0],d0[1]-4],[d0[0],d0[1]+4],0.42,DIM,0.8);
+    seg([d1[0],d1[1]-4],[d1[0],d1[1]+4],0.42,DIM,0.8);
+    svg.appendChild(text((d0[0]+d1[0])/2-14,(d0[1]+d1[1])/2+15,'180.0',0.46,9));
+    // height dim (right)
+    const h0=iso(6,6,0), h1=iso(6,6,5);
+    seg([h0[0]+16,h0[1]],[h1[0]+16,h1[1]],0.42,DIM,0.8);
+    svg.appendChild(text(h1[0]+20,(h0[1]+h1[1])/2,'55',0.46,9));
+
+    // construction lines projecting toward the headline (left), slow draw-in
+    function drawSeg(a,b,op,color,delay){
+      const L=Math.hypot(b[0]-a[0],b[1]-a[1])+1;
+      const e=line(a[0],a[1],b[0],b[1],0,color,0.7);
+      e.setAttribute('stroke-dasharray',L);
+      e.setAttribute('stroke-dashoffset',L);
+      const bk=Math.max(0,(delay-4)/60).toFixed(3), mk=Math.min((delay+16)/60,0.9).toFixed(3);
+      e.appendChild(el('animate',{attributeName:'stroke-dashoffset',values:L+';'+L+';0;0;'+L,keyTimes:'0;'+bk+';'+mk+';0.94;1',dur:'60s',repeatCount:'indefinite'}));
+      e.appendChild(el('animate',{attributeName:'opacity',values:'0;0;'+op+';'+op+';0',keyTimes:'0;'+bk+';'+mk+';0.95;1',dur:'60s',repeatCount:'indefinite'}));
+      svg.appendChild(e);
+    }
+    seg(iso(0,3,2.5),[W*0.47,H*0.48],0.18,FAINT,0.7,'7 5');
+    drawSeg(iso(0,0,0),[W*0.50,H*0.66],0.16,FAINT,10);
+
+    // scattered crosshairs (asymmetric)
+    cross(W*0.55,H*0.27,9,0.28);
+    cross(W*0.90,H*0.82,8,0.24);
+    cross(W*0.64,H*0.84,7,0.20);
+
+    // annotation clusters
+    [[W*0.81,H*0.27,'REF 01'],[W*0.81,H*0.31,'\u00b10.2 mm'],[W*0.81,H*0.35,'DRAFT']]
+      .forEach(a=>svg.appendChild(text(a[0],a[1],a[2],0.36,8)));
+    svg.appendChild(text(W*0.55,H*0.92,'IDEA \u2192 REALITY',0.30,8));
+    svg.appendChild(text(W*0.84,H*0.92,'PROJECT 0001',0.26,8));
   }
 
   build();
