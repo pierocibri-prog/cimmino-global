@@ -196,7 +196,7 @@
     pointer-events: none;
   }
   .hero-cube{
-    position:absolute; right:6%; top:50%; transform:translateY(-50%);
+    position:absolute; right:4.5%; top:50%; transform:translateY(calc(-50% + 48px));
     width:400px; height:400px; perspective:1700px;
     pointer-events:none; z-index:0; opacity:0.40;
   }
@@ -755,9 +755,12 @@
     if(!busy && !document.hidden){
       turn(axes[Math.floor(Math.random()*3)], layers[Math.floor(Math.random()*2)], Math.random()<0.5?1:-1);
     }
-    setTimeout(loop, 2400);
+    // organic cadence: vary the gap, with the occasional longer pause
+    let next = 2200 + Math.random()*2600;            // 2.2s - 4.8s
+    if(Math.random()<0.22) next += 1600 + Math.random()*2000; // sometimes it rests
+    setTimeout(loop, next);
   }
-  setTimeout(loop, 1200);
+  setTimeout(loop, 1000 + Math.random()*1200);
 })();
 
 </script>
@@ -794,7 +797,7 @@
       <p>When we present you a supplier, you're not just taking our word for it. You're taking Alibaba's. That's a very different level of confidence.</p>
     </div>
 
-    <div style="max-width:980px;margin:3rem auto 0;">
+    <div style="max-width:980px;margin:5.5rem auto 0;">
       <div style="text-align:center;margin-bottom:1.5rem;">
         <div class="section-eyebrow" style="margin-left:auto;margin-right:auto;">Global Reach</div>
         <h3 style="font-size:clamp(20px,2.6vw,28px);font-weight:700;letter-spacing:-0.02em;color:var(--white);margin-bottom:0.75rem;">Your market, connected to the factory.</h3>
