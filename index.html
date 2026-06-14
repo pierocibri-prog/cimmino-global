@@ -902,35 +902,31 @@
   </section>
 </div>
 
-<!-- EMOTIONAL CLOSE -->
-<div style="background: radial-gradient(ellipse 90% 120% at 50% 36%, #0c1a2c 0%, var(--bg) 78%); padding-top: 5rem; padding-bottom: 4.5rem; position:relative; overflow:hidden;">
+<!-- MAKE IT REAL -->
+<div id="get-started" style="background: radial-gradient(ellipse 90% 120% at 50% 36%, #0c1a2c 0%, var(--bg) 78%); padding-top: 5rem; padding-bottom: 5rem; position:relative; overflow:hidden;">
   <section style="text-align:center; padding-top:0; padding-bottom:0; position:relative; z-index:2;">
     <div style="max-width: 700px; margin: 0 auto;">
-      <h2 style="font-size: clamp(26px, 4vw, 40px); font-weight: 800; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 1.5rem;">Everything real<br><span style="color: var(--gray2);">was once just an idea.</span></h2>
+      <div class="section-eyebrow" style="margin-left:auto; margin-right:auto;">Make It Real</div>
+      <h2 style="font-size: clamp(26px, 4vw, 40px); font-weight: 800; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 0;">Everything real<br><span style="color: var(--gray2);">was once just an idea.</span></h2>
     </div>
   </section>
-  <div style="max-width: 1060px; margin: 1rem auto 0; position:relative; z-index:1; -webkit-mask-image: linear-gradient(to bottom,transparent 0,#000 4%,#000 94%,transparent 100%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%); mask-image: linear-gradient(to bottom,transparent 0,#000 4%,#000 94%,transparent 100%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%); -webkit-mask-composite: source-in; mask-composite: intersect;">
+  <div style="max-width: 1060px; margin: 1.5rem auto; position:relative; z-index:1; -webkit-mask-image: linear-gradient(to bottom,transparent 0,#000 4%,#000 94%,transparent 100%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%); mask-image: linear-gradient(to bottom,transparent 0,#000 4%,#000 94%,transparent 100%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%); -webkit-mask-composite: source-in; mask-composite: intersect;">
     <img src="/robot-journey.jpg" alt="From idea to finished product" style="width:100%; display:block;">
   </div>
-</div>
-
-<!-- CTA FINAL -->
-<div style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
-  <section id="get-started" style="text-align: center;">
-    <div class="section-eyebrow">Make It Real</div>
-    <h2>Ready to make yours real?</h2>
-    <p class="section-sub" style="max-width: 480px; margin: 0 auto 0.5rem;">Tell us what you're building.</p>
-    <p class="section-sub" style="max-width: 480px; margin: 0 auto 2.5rem;">We'll take it from there.</p>
-    <a href="#" class="btn-primary" onclick="return openTidio();" style="font-size: 16px; padding: 16px 36px;">Start your project</a>
-
-    <a class="cg-form-toggle" onclick="document.getElementById('cgFormBlock').classList.toggle('open');this.style.display='none';return false;">Prefer to write to us? Tell us about your project.</a>
-
-    <div class="cg-form" id="cgFormBlock">
-      <input type="text" id="cgfName" placeholder="Your name" autocomplete="name">
-      <input type="email" id="cgfEmail" placeholder="Your email" autocomplete="email">
-      <textarea id="cgfProject" placeholder="Tell us briefly about your project"></textarea>
-      <button type="button" onclick="cgSubmitForm()">Send</button>
-      <div class="cg-form-status" id="cgfStatus"></div>
+  <section style="text-align:center; padding-top:0; padding-bottom:0; position:relative; z-index:2;">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <h2 style="font-size: clamp(22px, 3vw, 34px); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 1rem;">Ready to make yours real?</h2>
+      <p class="section-sub" style="max-width: 480px; margin: 0 auto 0.5rem;">Tell us what you're building.</p>
+      <p class="section-sub" style="max-width: 480px; margin: 0 auto 2.5rem;">We'll take it from there.</p>
+      <a href="#" class="btn-primary" onclick="return openTidio();" style="font-size: 16px; padding: 16px 36px;">Start your project</a>
+      <a class="cg-form-toggle" style="display:block; margin-top:2rem;" onclick="document.getElementById('cgFormBlock').classList.toggle('open');this.style.display='none';return false;">Prefer to write to us? Tell us about your project.</a>
+      <div class="cg-form" id="cgFormBlock">
+        <input type="text" id="cgfName" placeholder="Your name" autocomplete="name">
+        <input type="email" id="cgfEmail" placeholder="Your email" autocomplete="email">
+        <textarea id="cgfProject" placeholder="Tell us briefly about your project"></textarea>
+        <button type="button" onclick="cgSubmitForm()">Send</button>
+        <div class="cg-form-status" id="cgfStatus"></div>
+      </div>
     </div>
   </section>
 </div>
