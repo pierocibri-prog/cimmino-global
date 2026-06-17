@@ -163,6 +163,78 @@ ${cleanConvo}`
         console.error('Sheets guide error:', e.message);
       }
 
+
+      // ─── Send the guide to the client by email ───
+      // Language: explicit body.lang first; fallback to text heuristic on convo+name.
+      const reqLang = (body.lang || '').toLowerCase();
+      const textForLang = (cleanConvo + ' ' + (guide.name || '') + ' ' + (guide.product || '')).toLowerCase();
+      const looksSpanish = /[\u00f1\u00e1\u00e9\u00ed\u00f3\u00fa\u00bf\u00a1]/.test(textForLang) ||
+        /\b(hola|gracias|por favor|necesito|quiero|gu[ií]a|fabricar|china)\b/.test(textForLang);
+      const lang = reqLang === 'es' ? 'es' : (reqLang === 'en' ? 'en' : (looksSpanish ? 'es' : 'en'));
+
+      const firstName = (guide.name && guide.name !== 'Unknown')
+        ? guide.name.trim().split(/\s+/)[0].replace(/[-\u2013\u2014].*$/, '')
+        : (lang === 'es' ? '' : '');
+
+      const pdfUrl = lang === 'es'
+        ? 'https://cimminoglobal.com/guia.pdf'
+        : 'https://cimminoglobal.com/guide.pdf';
+
+      const guideEmailSubject = lang === 'es'
+        ? 'Tu guía Cimmino Global'
+        : 'Your Cimmino Global guide';
+
+      const greeting = lang === 'es'
+        ? (firstName ? `Hola ${firstName},` : 'Hola,')
+        : (firstName ? `Hi ${firstName},` : 'Hi,');
+
+      const intro = lang === 'es'
+        ? 'Aquí tienes la guía con los 5 errores más caros al fabricar en China, y cómo evitarlos. Léela con calma cuando te venga bien.'
+        : "Here's the guide on the 5 most expensive mistakes when manufacturing in China, and how to avoid them. Read it at your own pace.";
+
+      const buttonText = lang === 'es' ? 'Descargar la guía' : 'Download the guide';
+
+      const outro = lang === 'es'
+        ? 'Si más adelante quieres conversar sobre tu proyecto, estoy por aquí. Sin prisa.'
+        : "If you'd like to talk about your project later on, I'm here. No rush.";
+
+      const signoff = lang === 'es' ? 'Un saludo,' : 'Best,';
+
+      const guideClientHtml = `<div style="font-family:Inter,Arial,sans-serif;background:#080C14;padding:32px;color:#c4ccd6;">
+  <div style="max-width:560px;margin:0 auto;background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden;">
+    <div style="height:4px;background:linear-gradient(to right,#1E6FD9 55%,#4A90E2 80%,#274768 100%);"></div>
+    <div style="padding:32px 36px;">
+      <div style="font-family:Syne,Helvetica,sans-serif;font-weight:800;color:#F4F7FB;font-size:18px;letter-spacing:0.02em;">CIMMINO<span style="color:#6FB0FF;">.</span>GLOBAL</div>
+      <div style="margin-top:24px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#6FB0FF;font-family:monospace;">${lang === 'es' ? 'Tu guía gratuita' : 'Your free guide'}</div>
+      <h1 style="margin:10px 0 18px;font-family:Syne,Helvetica,sans-serif;font-size:26px;color:#F4F7FB;line-height:1.2;">${lang === 'es' ? 'Aquí la tienes.' : 'Here it is.'}</h1>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#c4ccd6;">${greeting}</p>
+      <p style="margin:0 0 22px;font-size:14px;line-height:1.7;color:#c4ccd6;">${intro}</p>
+      <a href="${pdfUrl}" style="display:inline-block;background:#1E6FD9;color:#fff;text-decoration:none;padding:12px 26px;border-radius:9px;font-family:Syne,Helvetica,sans-serif;font-size:14px;font-weight:700;">${buttonText} &nbsp;&rarr;</a>
+      <p style="margin:22px 0 0;font-size:14px;line-height:1.7;color:#c4ccd6;">${outro}</p>
+      <p style="margin:18px 0 0;font-size:14px;line-height:1.7;color:#c4ccd6;">${signoff}<br>Piero</p>
+      <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.07);font-size:11px;color:#5b6675;font-family:monospace;letter-spacing:0.08em;">CIMMINO GLOBAL · cimminoglobal.com</div>
+    </div>
+  </div>
+</div>`;
+
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+          },
+          body: JSON.stringify({
+            from: 'Piero Cimmino <hello@cimminoglobal.com>',
+            to: [guide.email],
+            subject: guideEmailSubject,
+            html: guideClientHtml
+          })
+        });
+      } catch(e) {
+        console.error('Guide email to client error:', e.message);
+      }
+
       return res.status(200).json({ success: true, guide: true });
     }
 
