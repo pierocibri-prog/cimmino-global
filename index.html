@@ -587,7 +587,7 @@
     <a href="#real-cost">The Real Cost</a>
     <a href="#process">How It Works</a>
     <a href="#story">Our Story</a>
-    <a href="#get-started">Make It Real</a>
+    <a href="#make-it-real">Make It Real</a>
     <a href="#" class="nav-cta" onclick="return openTidio();">Start your project</a>
   </div>
   <button class="nav-hamburger" onclick="document.getElementById('nav-mobile').classList.toggle('open')" aria-label="Menu">
@@ -601,7 +601,7 @@
   <a href="#real-cost" onclick="document.getElementById('nav-mobile').classList.remove('open')">The Real Cost</a>
   <a href="#process" onclick="document.getElementById('nav-mobile').classList.remove('open')">How It Works</a>
   <a href="#story" onclick="document.getElementById('nav-mobile').classList.remove('open')">Our Story</a>
-  <a href="#get-started" onclick="document.getElementById('nav-mobile').classList.remove('open')">Make It Real</a>
+  <a href="#make-it-real" onclick="document.getElementById('nav-mobile').classList.remove('open')">Make It Real</a>
   <a href="#" class="nav-cta" onclick="document.getElementById('nav-mobile').classList.remove('open');return openTidio();">Start your project</a>
 </div>
 
@@ -903,7 +903,7 @@
 </div>
 
 <!-- MAKE IT REAL -->
-<div id="get-started" style="background: radial-gradient(ellipse 90% 120% at 50% 36%, #0c1a2c 0%, var(--bg) 78%); padding-top: 5rem; padding-bottom: 5rem; position:relative; overflow:hidden;">
+<div id="make-it-real" style="background: radial-gradient(ellipse 90% 120% at 50% 36%, #0c1a2c 0%, var(--bg) 78%); padding-top: 5rem; padding-bottom: 5rem; position:relative; overflow:hidden;">
   <section style="padding-top:0; padding-bottom:0;">
     <div class="section-eyebrow">Make It Real</div>
     <h2 style="font-size: clamp(24px, 2.6vw, 34px); font-weight: 800; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 0; text-align:center;">Everything you see<br><span style="color: var(--gray2);">was once just an idea.</span></h2>
@@ -1585,6 +1585,215 @@ document.getElementById('cgOverlay').addEventListener('click', function(e) {
   window.addEventListener('resize',centerCube);
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(centerCube);}
   setTimeout(centerCube,300);setTimeout(centerCube,1200);
+})();
+</script>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     EXIT-INTENT POPUP — Cimmino Global guide capture
+     Triggers once per visitor on exit-intent.
+     Fires only on desktop (mouse moves above top edge).
+     ════════════════════════════════════════════════════════════ -->
+
+<div id="cg-exit-popup" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(8,12,20,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;">
+  <div style="position:relative;max-width:480px;width:100%;background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;overflow:hidden;">
+    <div style="height:4px;background:linear-gradient(to right,#1E6FD9 55%,#4A90E2 80%,#274768 100%);"></div>
+    <button id="cg-exit-close" aria-label="Close" style="position:absolute;top:14px;right:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9aa6b5;width:32px;height:32px;border-radius:8px;cursor:pointer;font-family:Inter,Arial,sans-serif;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+    <div style="padding:36px 36px 32px;">
+      <div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#6FB0FF;font-family:'JetBrains Mono',monospace;margin-bottom:14px;">— Before you go</div>
+      <h2 style="font-family:Syne,Helvetica,sans-serif;font-size:26px;line-height:1.2;font-weight:800;color:#F4F7FB;margin:0 0 12px;">Take the guide with you.</h2>
+      <p style="font-family:Inter,Arial,sans-serif;font-size:14px;line-height:1.7;color:#c4ccd6;margin:0 0 22px;">The 7 most common mistakes when manufacturing in China, and how to avoid them. Free, no strings.</p>
+      <form id="cg-exit-form" style="display:flex;flex-direction:column;gap:10px;">
+        <input id="cg-exit-email" type="email" required placeholder="your@email.com" style="background:#0A101B;border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:13px 14px;color:#F4F7FB;font-family:Inter,Arial,sans-serif;font-size:14px;outline:none;">
+        <button type="submit" id="cg-exit-submit" style="background:#1E6FD9;color:#fff;border:0;border-radius:9px;padding:13px 14px;font-family:Syne,Helvetica,sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;">Send it to me</button>
+      </form>
+      <p id="cg-exit-feedback" style="display:none;font-family:Inter,Arial,sans-serif;font-size:13px;color:#16A34A;margin:14px 0 0;text-align:center;">On its way. Check your inbox in a minute.</p>
+      <p style="font-family:Inter,Arial,sans-serif;font-size:11px;color:#5b6675;margin:18px 0 0;text-align:center;font-style:italic;">No spam. The guide and a couple of follow-up notes. That's it.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var KEY = 'cg_exit_popup_seen_v1';
+  var popup = document.getElementById('cg-exit-popup');
+  var closeBtn = document.getElementById('cg-exit-close');
+  var form = document.getElementById('cg-exit-form');
+  var emailInput = document.getElementById('cg-exit-email');
+  var submitBtn = document.getElementById('cg-exit-submit');
+  var feedback = document.getElementById('cg-exit-feedback');
+
+  if(localStorage.getItem(KEY)) return;
+  if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
+
+  var armed = false;
+  setTimeout(function(){ armed = true; }, 8000);
+
+  function show(){
+    if(!armed) return;
+    if(localStorage.getItem(KEY)) return;
+    popup.style.display = 'flex';
+  }
+  function hide(){
+    popup.style.display = 'none';
+    localStorage.setItem(KEY, '1');
+  }
+
+  document.addEventListener('mouseleave', function(e){
+    if(e.clientY <= 0) show();
+  });
+  closeBtn.addEventListener('click', hide);
+  popup.addEventListener('click', function(e){ if(e.target===popup) hide(); });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var email = emailInput.value.trim();
+    if(!email || email.indexOf('@')<0) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+    try{
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          type: 'lead_guide',
+          name: '',
+          email: email,
+          source: 'exit_popup_en',
+          language: 'en'
+        })
+      });
+      form.style.display = 'none';
+      feedback.style.display = 'block';
+      localStorage.setItem(KEY, '1');
+      setTimeout(hide, 3000);
+    }catch(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send it to me';
+    }
+  });
+})();
+</script>
+
+
+<!-- ═══════════════════ EXIT INTENT MODAL (EN) ═══════════════════ -->
+<div id="cg-exit-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(8,12,20,0.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;animation:cgExitFade 0.35s ease;">
+  <div style="background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;animation:cgExitSlide 0.35s cubic-bezier(0.16,1,0.3,1);">
+    <div style="height:4px;background:linear-gradient(to right,#1E6FD9 55%,#4A90E2 80%,#274768 100%);"></div>
+    <button id="cg-exit-close" aria-label="Close" style="position:absolute;top:16px;right:16px;background:transparent;border:0;color:#6b7480;font-size:28px;cursor:pointer;line-height:1;padding:4px 8px;transition:color 0.2s;">×</button>
+    <div style="padding:40px 36px 32px;">
+      <div style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#6FB0FF;margin-bottom:14px;">Free guide</div>
+      <h2 style="font-family:Syne,Helvetica,sans-serif;font-size:26px;font-weight:800;color:#F4F7FB;line-height:1.2;margin:0 0 14px;">Before you go.</h2>
+      <p style="font-size:15px;line-height:1.6;color:#c4ccd6;margin:0 0 24px;">The 5 most expensive mistakes when manufacturing in China, and how to avoid them. Sent straight to your inbox.</p>
+      <form id="cg-exit-form" style="display:flex;flex-direction:column;gap:12px;">
+        <input id="cg-exit-email" type="email" required placeholder="your@email.com" style="background:#0A101B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:14px 16px;color:#F4F7FB;font-size:15px;font-family:Inter,Arial,sans-serif;outline:none;transition:border 0.2s;width:100%;box-sizing:border-box;" autocomplete="email">
+        <button type="submit" id="cg-exit-submit" style="background:#1E6FD9;color:#fff;border:0;border-radius:9px;padding:14px 20px;font-family:Syne,Helvetica,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s;">Send me the guide</button>
+        <button type="button" id="cg-exit-maybe" style="background:transparent;color:#6FB0FF;border:0;font-family:Inter,Arial,sans-serif;font-size:13px;cursor:pointer;padding:6px;margin-top:4px;">Maybe later</button>
+      </form>
+      <div id="cg-exit-success" style="display:none;text-align:center;padding:8px 0;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#16A34A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;">✓</div>
+        <p style="font-size:15px;color:#F4F7FB;font-family:Syne,Helvetica,sans-serif;font-weight:700;margin:0 0 6px;">Sent.</p>
+        <p style="font-size:13px;color:#9aa6b5;margin:0;">Check your inbox in a few seconds.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  @keyframes cgExitFade { from { opacity:0; } to { opacity:1; } }
+  @keyframes cgExitSlide { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+  #cg-exit-email:focus { border-color: #1E6FD9 !important; }
+  #cg-exit-submit:hover { background: #1659B0 !important; }
+  #cg-exit-close:hover { color: #F4F7FB !important; }
+</style>
+<script>
+(function(){
+  var STORAGE_KEY = 'cg_exit_intent_state';
+  var COOLDOWN_DAYS = 14;
+  var MIN_TIME_ON_SITE_MS = 20000;
+  var MOBILE_INACTIVITY_MS = 60000;
+  var landingTime = Date.now();
+  var modal = document.getElementById('cg-exit-modal');
+  var form = document.getElementById('cg-exit-form');
+  var emailInput = document.getElementById('cg-exit-email');
+  var submitBtn = document.getElementById('cg-exit-submit');
+  var closeBtn = document.getElementById('cg-exit-close');
+  var maybeBtn = document.getElementById('cg-exit-maybe');
+  var successDiv = document.getElementById('cg-exit-success');
+  var triggered = false;
+  var inactivityTimer = null;
+  function getState(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e){ return {}; }
+  }
+  function setState(s){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch(e){}
+  }
+  function shouldShow(){
+    var s = getState();
+    if (s.captured) return false;
+    if (s.dismissedAt && (Date.now() - s.dismissedAt) < COOLDOWN_DAYS*24*60*60*1000) return false;
+    if ((Date.now() - landingTime) < MIN_TIME_ON_SITE_MS) return false;
+    if (window.cgChatOpened) return false;
+    if (document.getElementById('cg-chat-panel') && document.getElementById('cg-chat-panel').style.display !== 'none') return false;
+    return true;
+  }
+  function showModal(){
+    if (triggered) return;
+    if (!shouldShow()) return;
+    triggered = true;
+    modal.style.display = 'flex';
+    setTimeout(function(){ emailInput.focus(); }, 100);
+  }
+  function dismiss(){
+    modal.style.display = 'none';
+    var s = getState();
+    s.dismissedAt = Date.now();
+    setState(s);
+  }
+  closeBtn.addEventListener('click', dismiss);
+  maybeBtn.addEventListener('click', dismiss);
+  modal.addEventListener('click', function(e){ if (e.target === modal) dismiss(); });
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var email = emailInput.value.trim();
+    if (!email || email.indexOf('@')<0) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    try {
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'lead_guide',
+          clientEmail: email,
+          messages: [{ role: 'user', content: 'Exit-intent popup: requested guide' }]
+        })
+      });
+    } catch(err){ console.error('Exit intent submit:', err); }
+    form.style.display = 'none';
+    successDiv.style.display = 'block';
+    var s = getState();
+    s.captured = true;
+    s.capturedAt = Date.now();
+    setState(s);
+    setTimeout(function(){ modal.style.display = 'none'; }, 2800);
+  });
+  // Desktop: exit-intent (cursor leaves through top)
+  document.addEventListener('mouseout', function(e){
+    if (e.clientY <= 0 && !e.relatedTarget && !e.toElement) showModal();
+  });
+  // Mobile: inactivity timer (no scroll/touch for X seconds)
+  function isMobile(){ return window.matchMedia('(max-width: 768px)').matches; }
+  function resetInactivity(){
+    if (!isMobile()) return;
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(showModal, MOBILE_INACTIVITY_MS);
+  }
+  if (isMobile()){
+    resetInactivity();
+    ['scroll','touchstart','touchmove','click'].forEach(function(ev){
+      window.addEventListener(ev, resetInactivity, { passive: true });
+    });
+  }
 })();
 </script>
 
