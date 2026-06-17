@@ -1243,7 +1243,7 @@ CONTROL TAGS (very important):
 - When you have finished all the questions, say the closing message and include this exact tag at the very end: [INTAKE_COMPLETE]
 
 FREE GUIDE (for those just exploring):
-If at any point the user signals they are just exploring, that they don't have anything concrete yet, that it's just an idea, or that they are not ready to move forward, do NOT pressure them with more questions. Instead, offer our free guide: "I understand. If you'd like, I can send you our guide on the 5 most expensive mistakes when manufacturing in China and how to avoid them. I just need your name and email, and I'll send you the download link." If they accept, ask for name and email (if you don't have them yet). When they give you the email for the guide, deliver the link EXACTLY in this Markdown format, do not modify it: [Download the guide](https://cimminoglobal.com/guia.pdf) and include this exact tag at the very end: [GUIDE_SENT]. After delivering the guide, warmly and without pressure invite them to tell you about their project when they're ready, and if they want to continue, proceed with the normal question flow.
+If at any point the user signals they are just exploring, that they don't have anything concrete yet, that it's just an idea, or that they are not ready to move forward, do NOT pressure them with more questions. Instead, offer our free guide: "I understand. If you'd like, I can send you our guide on the 5 most expensive mistakes when manufacturing in China and how to avoid them. I just need your name and email, and I'll send you the download link." If they accept, ask for name and email (if you don't have them yet). When they give you the email for the guide, deliver the link EXACTLY in this Markdown format, do not modify it: [Download the guide](https://cimminoglobal.com/guide.pdf) and include this exact tag at the very end: [GUIDE_SENT]. After delivering the guide, warmly and without pressure invite them to tell you about their project when they're ready, and if they want to continue, proceed with the normal question flow.
 
 Keep responses under 3 sentences. Be professional, warm and approachable. Never use em dashes, use commas, periods or colons instead.
 
@@ -1588,94 +1588,6 @@ document.getElementById('cgOverlay').addEventListener('click', function(e) {
 })();
 </script>
 
-
-<!-- ════════════════════════════════════════════════════════════
-     EXIT-INTENT POPUP — Cimmino Global guide capture
-     Triggers once per visitor on exit-intent.
-     Fires only on desktop (mouse moves above top edge).
-     ════════════════════════════════════════════════════════════ -->
-
-<div id="cg-exit-popup" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(8,12,20,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;">
-  <div style="position:relative;max-width:480px;width:100%;background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;overflow:hidden;">
-    <div style="height:4px;background:linear-gradient(to right,#1E6FD9 55%,#4A90E2 80%,#274768 100%);"></div>
-    <button id="cg-exit-close" aria-label="Close" style="position:absolute;top:14px;right:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9aa6b5;width:32px;height:32px;border-radius:8px;cursor:pointer;font-family:Inter,Arial,sans-serif;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
-    <div style="padding:36px 36px 32px;">
-      <div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#6FB0FF;font-family:'JetBrains Mono',monospace;margin-bottom:14px;">— Before you go</div>
-      <h2 style="font-family:Syne,Helvetica,sans-serif;font-size:26px;line-height:1.2;font-weight:800;color:#F4F7FB;margin:0 0 12px;">Take the guide with you.</h2>
-      <p style="font-family:Inter,Arial,sans-serif;font-size:14px;line-height:1.7;color:#c4ccd6;margin:0 0 22px;">The 7 most common mistakes when manufacturing in China, and how to avoid them. Free, no strings.</p>
-      <form id="cg-exit-form" style="display:flex;flex-direction:column;gap:10px;">
-        <input id="cg-exit-email" type="email" required placeholder="your@email.com" style="background:#0A101B;border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:13px 14px;color:#F4F7FB;font-family:Inter,Arial,sans-serif;font-size:14px;outline:none;">
-        <button type="submit" id="cg-exit-submit" style="background:#1E6FD9;color:#fff;border:0;border-radius:9px;padding:13px 14px;font-family:Syne,Helvetica,sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;">Send it to me</button>
-      </form>
-      <p id="cg-exit-feedback" style="display:none;font-family:Inter,Arial,sans-serif;font-size:13px;color:#16A34A;margin:14px 0 0;text-align:center;">On its way. Check your inbox in a minute.</p>
-      <p style="font-family:Inter,Arial,sans-serif;font-size:11px;color:#5b6675;margin:18px 0 0;text-align:center;font-style:italic;">No spam. The guide and a couple of follow-up notes. That's it.</p>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  var KEY = 'cg_exit_popup_seen_v1';
-  var popup = document.getElementById('cg-exit-popup');
-  var closeBtn = document.getElementById('cg-exit-close');
-  var form = document.getElementById('cg-exit-form');
-  var emailInput = document.getElementById('cg-exit-email');
-  var submitBtn = document.getElementById('cg-exit-submit');
-  var feedback = document.getElementById('cg-exit-feedback');
-
-  if(localStorage.getItem(KEY)) return;
-  if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
-
-  var armed = false;
-  setTimeout(function(){ armed = true; }, 8000);
-
-  function show(){
-    if(!armed) return;
-    if(localStorage.getItem(KEY)) return;
-    popup.style.display = 'flex';
-  }
-  function hide(){
-    popup.style.display = 'none';
-    localStorage.setItem(KEY, '1');
-  }
-
-  document.addEventListener('mouseleave', function(e){
-    if(e.clientY <= 0) show();
-  });
-  closeBtn.addEventListener('click', hide);
-  popup.addEventListener('click', function(e){ if(e.target===popup) hide(); });
-
-  form.addEventListener('submit', async function(e){
-    e.preventDefault();
-    var email = emailInput.value.trim();
-    if(!email || email.indexOf('@')<0) return;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
-    try{
-      await fetch('/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          type: 'lead_guide',
-          name: '',
-          email: email,
-          source: 'exit_popup_en',
-          language: 'en'
-        })
-      });
-      form.style.display = 'none';
-      feedback.style.display = 'block';
-      localStorage.setItem(KEY, '1');
-      setTimeout(hide, 3000);
-    }catch(err){
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send it to me';
-    }
-  });
-})();
-</script>
-
-
 <!-- ═══════════════════ EXIT INTENT MODAL (EN) ═══════════════════ -->
 <div id="cg-exit-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(8,12,20,0.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;animation:cgExitFade 0.35s ease;">
   <div style="background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;animation:cgExitSlide 0.35s cubic-bezier(0.16,1,0.3,1);">
@@ -1765,6 +1677,8 @@ document.getElementById('cgOverlay').addEventListener('click', function(e) {
         body: JSON.stringify({
           type: 'lead_guide',
           clientEmail: email,
+          lang: 'en',
+          source: 'exit_intent',
           messages: [{ role: 'user', content: 'Exit-intent popup: requested guide' }]
         })
       });
