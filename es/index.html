@@ -1582,92 +1582,6 @@ document.getElementById('cgOverlay').addEventListener('click', function(e) {
 })();
 </script>
 
-
-<!-- ════════════════════════════════════════════════════════════
-     POPUP EXIT-INTENT — Captura de guía Cimmino Global (ES)
-     ════════════════════════════════════════════════════════════ -->
-
-<div id="cg-exit-popup" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(8,12,20,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;">
-  <div style="position:relative;max-width:480px;width:100%;background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;overflow:hidden;">
-    <div style="height:4px;background:linear-gradient(to right,#1E6FD9 55%,#4A90E2 80%,#274768 100%);"></div>
-    <button id="cg-exit-close" aria-label="Cerrar" style="position:absolute;top:14px;right:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9aa6b5;width:32px;height:32px;border-radius:8px;cursor:pointer;font-family:Inter,Arial,sans-serif;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
-    <div style="padding:36px 36px 32px;">
-      <div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#6FB0FF;font-family:'JetBrains Mono',monospace;margin-bottom:14px;">— Antes de irte</div>
-      <h2 style="font-family:Syne,Helvetica,sans-serif;font-size:26px;line-height:1.2;font-weight:800;color:#F4F7FB;margin:0 0 12px;">Llévate la guía.</h2>
-      <p style="font-family:Inter,Arial,sans-serif;font-size:14px;line-height:1.7;color:#c4ccd6;margin:0 0 22px;">Los 7 errores más comunes al fabricar en China, y cómo evitarlos. Gratis, sin compromiso.</p>
-      <form id="cg-exit-form" style="display:flex;flex-direction:column;gap:10px;">
-        <input id="cg-exit-email" type="email" required placeholder="tu@correo.com" style="background:#0A101B;border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:13px 14px;color:#F4F7FB;font-family:Inter,Arial,sans-serif;font-size:14px;outline:none;">
-        <button type="submit" id="cg-exit-submit" style="background:#1E6FD9;color:#fff;border:0;border-radius:9px;padding:13px 14px;font-family:Syne,Helvetica,sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;">Enviármela</button>
-      </form>
-      <p id="cg-exit-feedback" style="display:none;font-family:Inter,Arial,sans-serif;font-size:13px;color:#16A34A;margin:14px 0 0;text-align:center;">En camino. Revisa tu correo en un minuto.</p>
-      <p style="font-family:Inter,Arial,sans-serif;font-size:11px;color:#5b6675;margin:18px 0 0;text-align:center;font-style:italic;">Sin spam. La guía y un par de notas más adelante. Nada más.</p>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  var KEY = 'cg_exit_popup_seen_v1';
-  var popup = document.getElementById('cg-exit-popup');
-  var closeBtn = document.getElementById('cg-exit-close');
-  var form = document.getElementById('cg-exit-form');
-  var emailInput = document.getElementById('cg-exit-email');
-  var submitBtn = document.getElementById('cg-exit-submit');
-  var feedback = document.getElementById('cg-exit-feedback');
-
-  if(localStorage.getItem(KEY)) return;
-  if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
-
-  var armed = false;
-  setTimeout(function(){ armed = true; }, 8000);
-
-  function show(){
-    if(!armed) return;
-    if(localStorage.getItem(KEY)) return;
-    popup.style.display = 'flex';
-  }
-  function hide(){
-    popup.style.display = 'none';
-    localStorage.setItem(KEY, '1');
-  }
-
-  document.addEventListener('mouseleave', function(e){
-    if(e.clientY <= 0) show();
-  });
-  closeBtn.addEventListener('click', hide);
-  popup.addEventListener('click', function(e){ if(e.target===popup) hide(); });
-
-  form.addEventListener('submit', async function(e){
-    e.preventDefault();
-    var email = emailInput.value.trim();
-    if(!email || email.indexOf('@')<0) return;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Enviando…';
-    try{
-      await fetch('/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          type: 'lead_guide',
-          name: '',
-          email: email,
-          source: 'exit_popup_es',
-          language: 'es'
-        })
-      });
-      form.style.display = 'none';
-      feedback.style.display = 'block';
-      localStorage.setItem(KEY, '1');
-      setTimeout(hide, 3000);
-    }catch(err){
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Enviármela';
-    }
-  });
-})();
-</script>
-
-
 <!-- ═══════════════════ EXIT INTENT MODAL (ES) ═══════════════════ -->
 <div id="cg-exit-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(8,12,20,0.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;animation:cgExitFade 0.35s ease;">
   <div style="background:#0D1420;border:1px solid rgba(255,255,255,0.07);border-radius:18px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;animation:cgExitSlide 0.35s cubic-bezier(0.16,1,0.3,1);">
@@ -1757,6 +1671,8 @@ document.getElementById('cgOverlay').addEventListener('click', function(e) {
         body: JSON.stringify({
           type: 'lead_guide',
           clientEmail: email,
+          lang: 'es',
+          source: 'exit_intent',
           messages: [{ role: 'user', content: 'Exit-intent popup: pidió la guía' }]
         })
       });
