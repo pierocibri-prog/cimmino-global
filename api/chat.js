@@ -6,8 +6,8 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby-TkDUP_ZewmrR-IDOJuSzi97u1IopxxBwS0cuMh8sG19AMW-jSZOME7JAqi9pxzNkVg/exec';
-
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyxxMULS6yTrd-brLrCSLI1kAJEMnB_LhDu4xK0Bl1_JLyaUW3AmyU4PgAcR2QIpA-/exec';
+  
   try {
     const rawBody = await new Promise((resolve, reject) => {
       let data = '';
